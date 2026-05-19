@@ -9,7 +9,7 @@ export default function Dashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
 
-    navigate("/ocean-control-center");
+    navigate("/MyOcean-Endmin");
   };
 
   return (

@@ -29,7 +29,7 @@ export default function AppRoutes() {
 
         {/* ADMIN */}
         <Route
-          path="/ocean-control-center"
+          path="/MyOcean-Endmin"
           element={<Login />}
         />
 
@@ -37,7 +37,7 @@ export default function AppRoutes() {
           path="/ocean-dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
