@@ -5,6 +5,7 @@ import bmkgLogo from "../assets/images/Logo.jpg";
 export default function PublicNavbar() {
 
   const [time, setTime] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
 
@@ -32,10 +33,16 @@ export default function PublicNavbar() {
 
       {/* TOP BAR */}
       <div
-        className="d-flex justify-content-between align-items-center px-5"
+        className="
+          d-none
+          d-md-flex
+          justify-content-between
+          align-items-center
+          px-5
+        "
         style={{
           background: "#eef1f5",
-          height: "48px",
+          minHeight: "48px",
           fontSize: "14px",
         }}
       >
@@ -55,6 +62,7 @@ export default function PublicNavbar() {
             fontWeight: "500",
           }}
         >
+
           STANDAR WAKTU INDONESIA
 
           <span
@@ -79,121 +87,237 @@ export default function PublicNavbar() {
           >
             {utcTime} UTC
           </span>
+
         </div>
 
       </div>
 
       {/* MAIN NAVBAR */}
       <nav
-        className="navbar navbar-expand-lg bg-white shadow-sm"
+        className="bg-white shadow-sm border-bottom"
         style={{
-          height: "86px",
+          position: "relative",
+          zIndex: 999,
         }}
       >
 
-        <div className="container-fluid px-5">
+        <div className="container-fluid px-4 px-lg-5 py-3">
 
-          {/* LOGO */}
-          <Link
-            className="navbar-brand fw-bold d-flex align-items-center"
-            to="/"
-          >
+          <div className="d-flex justify-content-between align-items-center">
 
-            <img
-              src={bmkgLogo}
-              alt="BMKG Logo"
-              style={{
-                width: "58px",
-                height: "58px",
-                objectFit: "contain",
-              }}
-            />
+            {/* LOGO */}
+            <Link
+              className="navbar-brand fw-bold d-flex align-items-center m-0"
+              to="/"
+            >
 
-            <div className="ms-2">
-
-              <div
+              <img
+                src={bmkgLogo}
+                alt="BMKG Logo"
                 style={{
-                  fontSize: "15px",
-                  fontWeight: "700",
-                  lineHeight: "1.2",
-                  color: "#111827",
+                  width: "58px",
+                  height: "58px",
+                  objectFit: "contain",
                 }}
-              >
-                MY_OCEAN
+              />
+
+              <div className="ms-2">
+
+                <div
+                  style={{
+                    fontSize: "15px",
+                    fontWeight: "700",
+                    lineHeight: "1.2",
+                    color: "#111827",
+                  }}
+                >
+                  MY_OCEAN
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#6b7280",
+                  }}
+                >
+                  MONITORING BANJIR ROB
+                </div>
+
               </div>
 
-              <div
-                style={{
-                  fontSize: "11px",
-                  color: "#6b7280",
-                }}
-              >
-                MONITORING BANJIR ROB
-              </div>
+            </Link>
+
+            {/* DESKTOP MENU */}
+            <div className="d-none d-lg-flex align-items-center">
+
+              <ul className="navbar-nav flex-row mx-auto">
+
+                <li className="nav-item mx-1">
+                  <Link
+                    className="nav-link custom-nav-link"
+                    to="/"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+
+                <li className="nav-item mx-1">
+                  <Link
+                    className="nav-link custom-nav-link"
+                    to="/Pasang-Surut"
+                  >
+                    Pasang Surut
+                  </Link>
+                </li>
+
+                <li className="nav-item mx-1">
+                  <Link
+                    className="nav-link custom-nav-link"
+                    to="/Peta"
+                  >
+                    Peta
+                  </Link>
+                </li>
+
+                <li className="nav-item mx-1">
+                  <Link
+                    className="nav-link custom-nav-link"
+                    to="/Potensi-Rob"
+                  >
+                    Potensi Rob
+                  </Link>
+                </li>
+
+                <li className="nav-item mx-1">
+                  <Link
+                    className="nav-link custom-nav-link"
+                    to="/Cuaca"
+                  >
+                    Cuaca
+                  </Link>
+                </li>
+
+              </ul>
 
             </div>
 
-          </Link>
+            {/* RIGHT SIDE */}
+            <div className="d-flex align-items-center">
 
-          {/* MOBILE BUTTON */}
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+              {/* AI BUTTON DESKTOP */}
+              <Link
+                className="
+                  btn
+                  btn-outline-primary
+                  rounded-3
+                  px-4
+                  d-none
+                  d-lg-inline-flex
+                "
+                to="/marin-minamo"
+              >
+                🤖 Marin Minamo
+              </Link>
 
-          {/* MENU */}
-          <div
-            className="collapse navbar-collapse"
-            id="navbarNav"
-          >
+              {/* MOBILE BUTTON */}
+              <button
+                className="
+                  btn
+                  d-lg-none
+                  border-0
+                  shadow-none
+                  fs-2
+                "
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                ☰
+              </button>
 
-            <ul className="navbar-nav mx-auto">
-
-              <li className="nav-item mx-2">
-                <Link className="nav-link" to="/">
-                  Dashboard
-                </Link>
-              </li>
-
-              <li className="nav-item mx-2">
-                <Link className="nav-link" to="/Pasang-Surut">
-                  Pasang Surut
-                </Link>
-              </li>
-
-              <li className="nav-item mx-2">
-                <Link className="nav-link" to="/Peta">
-                  Peta
-                </Link>
-              </li>
-
-              <li className="nav-item mx-2">
-                <Link className="nav-link" to="/Potensi-Rob">
-                  Potensi Rob
-                </Link>
-              </li>
-
-              <li className="nav-item mx-2">
-                <Link className="nav-link" to="/Cuaca">
-                  Cuaca
-                </Link>
-              </li>
-
-            </ul>
-
-            {/* AI CHATBOT BUTTON */}
-            <Link
-              className="btn btn-outline-primary rounded-3 px-4"
-              to="/marin-minamo"
-            >
-              🤖 Marin Minamo
-            </Link>
+            </div>
 
           </div>
+
+          {/* MOBILE MENU */}
+          {
+            isOpen && (
+              <div
+                className="
+                  d-lg-none
+                  mt-4
+                  pt-4
+                  border-top
+                "
+              >
+
+                <ul className="navbar-nav text-center">
+
+                  <li className="nav-item py-2">
+                    <Link
+                      className="nav-link text-dark fw-medium"
+                      to="/"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+
+                  <li className="nav-item py-2">
+                    <Link
+                      className="nav-link text-dark fw-medium"
+                      to="/Pasang-Surut"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Pasang Surut
+                    </Link>
+                  </li>
+
+                  <li className="nav-item py-2">
+                    <Link
+                      className="nav-link text-dark fw-medium"
+                      to="/Peta"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Peta
+                    </Link>
+                  </li>
+
+                  <li className="nav-item py-2">
+                    <Link
+                      className="nav-link text-dark fw-medium"
+                      to="/Potensi-Rob"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Potensi Rob
+                    </Link>
+                  </li>
+
+                  <li className="nav-item py-2">
+                    <Link
+                      className="nav-link text-dark fw-medium"
+                      to="/Cuaca"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Cuaca
+                    </Link>
+                  </li>
+
+                </ul>
+
+                <div className="mt-4 d-flex justify-content-center">
+
+                  <Link
+                    className="btn btn-outline-primary rounded-3 px-4"
+                    to="/marin-minamo"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    🤖 Marin Minamo
+                  </Link>
+
+                </div>
+
+              </div>
+            )
+          }
 
         </div>
 
