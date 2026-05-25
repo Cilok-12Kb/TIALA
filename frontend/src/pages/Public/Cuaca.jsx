@@ -12,17 +12,150 @@ import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
 
-const weatherIcon = new L.Icon({
-  iconUrl:
-    "https://cdn-icons-png.flaticon.com/512/4834/4834559.png",
-  iconSize: [34, 34],
-});
+// ICON BERDASARKAN KONDISI CUACA
+const getWeatherIcon = (cuaca) => {
+
+  const kondisi = cuaca?.toLowerCase() || "";
+
+  // CERAH
+  if (
+    kondisi.includes("cerah") &&
+    !kondisi.includes("berawan")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // CERAH BERAWAN
+  if (
+    kondisi.includes("cerah berawan")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/1163/1163661.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // BERAWAN
+  if (
+    kondisi.includes("berawan")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/414/414825.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // HUJAN RINGAN
+  if (
+    kondisi.includes("hujan ringan")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/3313/3313884.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // HUJAN SEDANG / HUJAN
+  if (
+    kondisi.includes("hujan")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/3351/3351979.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // PETIR
+  if (
+    kondisi.includes("petir")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // KABUT
+  if (
+    kondisi.includes("kabut")
+  ) {
+    return new L.Icon({
+      iconUrl:
+        "https://cdn-icons-png.flaticon.com/512/4005/4005901.png",
+      iconSize: [34, 34],
+    });
+  }
+
+  // DEFAULT
+  return new L.Icon({
+    iconUrl:
+      "https://cdn-icons-png.flaticon.com/512/4834/4834559.png",
+    iconSize: [34, 34],
+  });
+
+};
 
 export default function Cuaca() {
 
   const [cuacaList, setCuacaList] = useState([]);
+
   const [selectedWilayah, setSelectedWilayah] = useState(null);
+
+  const [searchKelurahan, setSearchKelurahan] = useState("");
+
+  const [filterKecamatan, setFilterKecamatan] =
+  useState("Semua");
+
   const [loading, setLoading] = useState(true);
+
+  // LIST KECAMATAN
+  const kecamatanList = [
+    "Semua",
+    "Banyumanik",
+    "Candisari",
+    "Gajahmungkur",
+    "Gayamsari",
+    "Genuk",
+    "Gunungpati",
+    "Mijen",
+    "Ngaliyan",
+    "Pedurungan",
+    "Semarang Barat",
+    "Semarang Selatan",
+    "Semarang Tengah",
+    "Semarang Timur",
+    "Semarang Utara",
+    "Tembalang",
+    "Tugu",
+  ];
+
+  // FILTER DATA
+  const filteredCuaca = cuacaList.filter((item) => {
+
+    const cocokKelurahan =
+      item.desa
+        .toLowerCase()
+        .includes(searchKelurahan.toLowerCase());
+
+    const cocokKecamatan =
+      filterKecamatan === "Semua"
+        ? true
+        : item.kecamatan
+            .toLowerCase()
+            .includes(filterKecamatan.toLowerCase());
+
+    return cocokKelurahan && cocokKecamatan;
+
+  });
 
   useEffect(() => {
 
@@ -31,7 +164,7 @@ export default function Cuaca() {
       try {
 
         const response = await fetch(
-          "http://127.0.0.1:8000/api/cuaca-semarang"
+          "http://10.234.104.244:8000/api/cuaca-semarang"
         );
 
         const data = await response.json();
@@ -44,29 +177,23 @@ export default function Cuaca() {
 
         const hasil = data.data.map((item) => {
 
-          const prakiraan =
-            item.cuaca?.[0] || [];
-
-          const current =
-            prakiraan[0] || {};
-
           return {
 
-            desa: item.lokasi?.desa,
-            kecamatan: item.lokasi?.kecamatan,
+            desa: item.desa,
+            kecamatan: item.kecamatan,
 
-            lat: Number(item.lokasi?.lat),
-            lon: Number(item.lokasi?.lon),
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
 
-            suhu: current?.t,
-            cuaca: current?.weather_desc,
+            suhu: item.t,
+            cuaca: item.weather_desc,
 
-            kelembapan: current?.hu,
-            angin: current?.ws,
+            kelembapan: item.hu,
+            angin: item.ws,
 
-            waktu: current?.local_datetime,
+            waktu: item.local_datetime,
 
-            prakiraan,
+            prakiraan: item.prakiraan || [],
 
           };
 
@@ -141,14 +268,14 @@ export default function Cuaca() {
                     color: "#0f172a",
                   }}
                 >
-                  Peta Cuaca Kota Semarang
+                  Peta Prakiraaan Cuaca Kota Semarang
                 </h1>
 
                 <p
                   className="mb-0"
                   style={{
                     color: "#64748b",
-                    maxWidth: "760px",
+                    maxWidth: "100vh",
                     lineHeight: "1.8",
                   }}
                 >
@@ -184,7 +311,7 @@ export default function Cuaca() {
                     color: "#0f172a",
                   }}
                 >
-                  {cuacaList.length}
+                  {filteredCuaca.length}
                 </h2>
 
               </div>
@@ -194,7 +321,12 @@ export default function Cuaca() {
           </div>
 
           {/* CONTENT */}
-          <div className="p-4">
+          <div
+            className="p-4 pt-0"
+            style={{
+              marginTop: "-20px",
+            }}
+          >
 
             <div className="row g-4">
 
@@ -202,12 +334,33 @@ export default function Cuaca() {
               <div className="col-lg-8">
 
                 <div
-                  className="overflow-hidden rounded-5"
+                  className="position-relative overflow-hidden"
                   style={{
+                    borderRadius: "40px",
+                    background:
+                      "linear-gradient(to bottom, #ffffff, #f8fafc)",
                     border:
                       "1px solid rgba(0,0,0,0.06)",
+                    padding: "14px",
+                    boxShadow:
+                      "0 20px 50px rgba(15,23,42,0.08)",
                   }}
                 >
+
+                  {/* TOP CURVE */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: "120px",
+                      background:
+                        "linear-gradient(to bottom, rgba(14,165,233,0.08), transparent)",
+                      zIndex: 1,
+                      pointerEvents: "none",
+                    }}
+                  />
 
                   {loading ? (
 
@@ -215,6 +368,8 @@ export default function Cuaca() {
                       className="d-flex align-items-center justify-content-center"
                       style={{
                         height: "700px",
+                        borderRadius: "30px",
+                        background: "#ffffff",
                       }}
                     >
 
@@ -239,102 +394,184 @@ export default function Cuaca() {
 
                   ) : (
 
-                    <MapContainer
-                      center={[-6.9667, 110.4167]}
-                      zoom={11}
+                  <div
+                    style={{
+                      borderRadius: "30px",
+                      overflow: "hidden",
+                    }}
+                  >
+
+                    {/* SEARCH & FILTER */}
+                    <div
+                      className="d-flex flex-column flex-lg-row gap-3 p-3"
                       style={{
-                        height: "750px",
-                        width: "100%",
+                        background: "#ffffff",
+                        borderBottom: "1px solid rgba(0,0,0,0.06)",
                       }}
                     >
 
-                      <TileLayer
-                        attribution='&copy; OpenStreetMap contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
+                      {/* SEARCH */}
+                      <div className="flex-grow-1">
 
-                      {cuacaList.map((item, index) => (
+                        <input
+                          type="text"
+                          placeholder="Cari kelurahan..."
+                          className="form-control"
+                          value={searchKelurahan}
+                          onChange={(e) =>
+                            setSearchKelurahan(e.target.value)
+                          }
+                          style={{
+                            height: "50px",
+                            borderRadius: "16px",
+                            border: "1px solid rgba(0,0,0,0.08)",
+                            paddingLeft: "18px",
+                            fontSize: "15px",
+                            boxShadow: "none",
+                          }}
+                        />
 
-                        <Marker
-                          key={index}
-                          position={[
-                            item.lat,
-                            item.lon,
-                          ]}
-                          icon={weatherIcon}
+                      </div>
+
+                      {/* FILTER */}
+                      <div
+                        style={{
+                          minWidth: "240px",
+                        }}
+                      >
+
+                        <select
+                          className="form-select"
+                          value={filterKecamatan}
+                          onChange={(e) =>
+                            setFilterKecamatan(e.target.value)
+                          }
+                          style={{
+                            height: "50px",
+                            borderRadius: "16px",
+                            border: "1px solid rgba(0,0,0,0.08)",
+                            fontSize: "15px",
+                            boxShadow: "none",
+                          }}
                         >
 
-                          <Popup>
+                          {kecamatanList.map((kecamatan, index) => (
 
-                            <div
-                              style={{
-                                minWidth: "220px",
-                              }}
+                            <option
+                              key={index}
+                              value={kecamatan}
                             >
+                              {kecamatan}
+                            </option>
 
-                              <h6
-                                className="fw-bold mb-1"
-                              >
-                                {item.desa}
-                              </h6>
+                          ))}
 
-                              <small
+                        </select>
+
+                      </div>
+
+                    </div>
+
+                    {/* MAP */}
+
+                      <MapContainer
+                        center={[-6.9667, 110.4167]}
+                        zoom={11}
+                        style={{
+                          height: "750px",
+                          width: "100%",
+                        }}
+                      >
+
+                        <TileLayer
+                          attribution='&copy; OpenStreetMap contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+
+                        {filteredCuaca.map((item, index) => (
+
+                          <Marker
+                            key={index}
+                            position={[
+                              item.lat,
+                              item.lon,
+                            ]}
+                            icon={getWeatherIcon(item.cuaca)}
+                          >
+
+                            <Popup>
+
+                              <div
                                 style={{
-                                  color: "#64748b",
+                                  minWidth: "220px",
                                 }}
                               >
-                                Kecamatan {item.kecamatan}
-                              </small>
 
-                              <div className="mt-3">
+                                <h6
+                                  className="fw-bold mb-1"
+                                >
+                                  {item.desa}
+                                </h6>
 
-                                <div className="d-flex justify-content-between mb-2">
+                                <small
+                                  style={{
+                                    color: "#64748b",
+                                  }}
+                                >
+                                  Kecamatan {item.kecamatan}
+                                </small>
 
-                                  <span>
-                                    🌤️ Cuaca
-                                  </span>
+                                <div className="mt-3">
 
-                                  <strong>
-                                    {item.cuaca}
-                                  </strong>
+                                  <div className="d-flex justify-content-between mb-2">
 
-                                </div>
+                                    <span>
+                                      🌤️ Cuaca
+                                    </span>
 
-                                <div className="d-flex justify-content-between mb-2">
+                                    <strong>
+                                      {item.cuaca}
+                                    </strong>
 
-                                  <span>
-                                    🌡️ Suhu
-                                  </span>
+                                  </div>
 
-                                  <strong>
-                                    {item.suhu}°C
-                                  </strong>
+                                  <div className="d-flex justify-content-between mb-2">
 
-                                </div>
+                                    <span>
+                                      🌡️ Suhu
+                                    </span>
 
-                                <div className="d-flex justify-content-between">
+                                    <strong>
+                                      {item.suhu}°C
+                                    </strong>
 
-                                  <span>
-                                    💧 Kelembapan
-                                  </span>
+                                  </div>
 
-                                  <strong>
-                                    {item.kelembapan}%
-                                  </strong>
+                                  <div className="d-flex justify-content-between">
+
+                                    <span>
+                                      💧 Kelembapan
+                                    </span>
+
+                                    <strong>
+                                      {item.kelembapan}%
+                                    </strong>
+
+                                  </div>
 
                                 </div>
 
                               </div>
 
-                            </div>
+                            </Popup>
 
-                          </Popup>
+                          </Marker>
 
-                        </Marker>
+                        ))}
 
-                      ))}
+                      </MapContainer>
 
-                    </MapContainer>
+                    </div>
 
                   )}
 
@@ -405,7 +642,7 @@ export default function Cuaca() {
 
                       <tbody>
 
-                        {cuacaList.map((item, index) => (
+                        {filteredCuaca.map((item, index) => (
 
                           <tr key={index}>
 
