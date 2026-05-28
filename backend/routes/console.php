@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('sync:bmkg')
-    ->hourlyAt();
+    ->hourlyAt(0);
