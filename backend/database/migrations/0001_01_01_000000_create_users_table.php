@@ -35,6 +35,12 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('phone')->nullable()->after('email');
+            $table->string('jabatan')->nullable()->after('phone');
+            $table->string('avatar')->nullable()->after('jabatan');
+        });
     }
 
     /**
@@ -45,5 +51,8 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['phone', 'jabatan', 'avatar']);
+        });
     }
 };

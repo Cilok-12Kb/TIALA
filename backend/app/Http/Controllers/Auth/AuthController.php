@@ -12,34 +12,72 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+            'email'    => 'required|email',
+            'password' => 'required|string',
         ]);
 
+        // Cek email dulu
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
             return response()->json([
-                'message' => 'Email atau password salah'
+                'message' => 'Email tidak terdaftar.'
             ], 401);
         }
 
-        $token = $user->createToken('my_ocean_token')->plainTextToken;
+        // Baru cek password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Password salah.'
+            ], 401);
+        }
+
+        // Cek role menggunakan Spatie
+        $roles = $user->getRoleNames(); // ['super_admin'] atau ['staff_bmkg']
+
+        if ($roles->isEmpty()) {
+            return response()->json([
+                'message' => 'Akun tidak memiliki role yang valid.'
+            ], 403);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login berhasil',
-            'token' => $token,
-            'role' => $user->getRoleNames(),
-            'user' => $user
+            'token'   => $token,
+            'role'    => $roles->first(),
+            'user'    => [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'phone'   => $user->phone,
+                'jabatan' => $user->jabatan,
+                'avatar'  => $user->avatar,
+                'role'    => $roles->first(),
+            ],
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logout berhasil'
+            'message' => 'Berhasil logout.'
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        return response()->json([
+            'id'      => $user->id,
+            'name'    => $user->name,
+            'email'   => $user->email,
+            'phone'   => $user->phone,
+            'jabatan' => $user->jabatan,
+            'avatar'  => $user->avatar,
+            'role'    => $user->getRoleNames()->first(),
         ]);
     }
 }
