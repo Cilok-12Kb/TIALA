@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\WeatherController;   // ← tambah ini
 use App\Models\Weather;
 use Illuminate\Support\Facades\Route;
 
@@ -81,3 +82,6 @@ Route::get('/cuaca-semarang', function () {
         'data'  => Weather::all(),
     ]);
 });
+
+// Coba dulu TANPA middleware untuk test
+Route::get('/weather/rata-rata', [WeatherController::class, 'rataRata']);
