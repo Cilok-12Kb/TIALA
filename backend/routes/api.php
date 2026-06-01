@@ -93,4 +93,40 @@ Route::get('/cuaca-semarang', function () {
     ]);
 });
 
+// ── Pasang Surut ──────────────────────────────────────────────────────────────
+Route::get('/pasang-surut', function () {
+    $data = Weather::select(
+            'id',
+            'desa',
+            'kecamatan',
+            'local_datetime',
+            't',
+            'hu',
+            'ws'
+        )
+        ->orderBy('local_datetime', 'asc')
+        ->limit(24)
+        ->get()
+        ->map(function ($item, $index) {
+            $tideHeight = round(
+                1.5 + sin($index / 2) * 0.8 + ($item->ws ?? 0) / 100,
+                2
+            );
+
+            return [
+                'id' => $item->id,
+                'lokasi' => $item->desa . ', ' . $item->kecamatan,
+                'datetime' => $item->local_datetime,
+                'tide_height' => $tideHeight,
+                'status' => $tideHeight >= 1.8 ? 'Pasang' : 'Surut',
+                'kenaikan_air' => round($tideHeight * 2.5, 1),
+            ];
+        });
+
+    return response()->json([
+        'total' => $data->count(),
+        'data' => $data,
+    ]);
+});
+
 Route::get('/weather/rata-rata', [WeatherController::class, 'rataRata']);
