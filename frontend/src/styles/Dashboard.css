@@ -334,12 +334,71 @@
   transform: translateX(2px);
 }
 
+/* ── Weather Filter (BARU) ── */
+.db-weather-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.db-weather-filter__input {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  color: #0F172A;
+}
+
+.db-weather-filter__input:focus {
+  border-color: #0284C7;
+}
+
+.db-weather-filter__input::placeholder {
+  color: #CBD5E1;
+}
+
+.db-weather-filter__select {
+  width: 200px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  color: #0F172A;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.db-weather-filter__select:focus {
+  border-color: #0284C7;
+}
+
+/* ── Weather Map ── */
+.db-weather-map-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  height: 550px; /* tetap sama, search bar sekarang di luar */
+  margin-bottom: 16px;
+}
+
+.db-weather-map-wrap > * {
+  height: 100% !important;
+}
+
 /* ── Weather Layout ── */
 .db-weather-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 16px;
-  margin-bottom: 16px;
 }
 
 @media (max-width: 768px) {
@@ -467,18 +526,6 @@
   font-size: 11px;
   color: #94A3B8;
   margin-top: 2px;
-}
-
-/* ── Weather Map ── */
-.db-weather-map-wrap {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #E2E8F0;
-  height: 300px;
-}
-
-.db-weather-map-wrap > * {
-  height: 100% !important;
 }
 
 /* ── Bottom Grid ── */

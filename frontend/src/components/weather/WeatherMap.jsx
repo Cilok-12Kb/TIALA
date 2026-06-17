@@ -14,6 +14,7 @@ export default function WeatherMapView({
   setFilterKecamatan,
   kecamatanList,
   onWeatherSelect,
+  showFilters = true,
 }) {
 
   return (
@@ -82,64 +83,68 @@ export default function WeatherMapView({
           </div>
 
           {/* SEARCH & FILTER */}
-          <div
-            className="d-flex flex-column flex-lg-row gap-3 p-3"
-            style={{
-              background: "#ffffff",
-              borderBottom: "1px solid rgba(0,0,0,0.06)",
-            }}
-          >
-
-            <div className="flex-grow-1">
-
-              <input
-                type="text"
-                placeholder="Cari kelurahan..."
-                className="form-control"
-                value={searchKelurahan}
-                onChange={(e) => setSearchKelurahan(e.target.value)}
-                style={{
-                  height: "50px",
-                  borderRadius: "16px",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  paddingLeft: "18px",
-                  fontSize: "15px",
-                  boxShadow: "none",
-                }}
-              />
-
-            </div>
+          {showFilters && (
 
             <div
+              className="d-flex flex-column flex-lg-row gap-3 p-3"
               style={{
-                width: window.innerWidth < 768 ? "200px" : "240px",
+                background: "#ffffff",
+                borderBottom: "1px solid rgba(0,0,0,0.06)",
               }}
             >
 
-              <select
-                className="form-select"
-                value={filterKecamatan}
-                onChange={(e) => setFilterKecamatan(e.target.value)}
+              <div className="flex-grow-1">
+
+                <input
+                  type="text"
+                  placeholder="Cari kelurahan..."
+                  className="form-control"
+                  value={searchKelurahan}
+                  onChange={(e) => setSearchKelurahan(e.target.value)}
+                  style={{
+                    height: "50px",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    paddingLeft: "18px",
+                    fontSize: "15px",
+                    boxShadow: "none",
+                  }}
+                />
+
+              </div>
+
+              <div
                 style={{
-                  height: "50px",
-                  borderRadius: "16px",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  fontSize: "15px",
-                  boxShadow: "none",
+                  width: window.innerWidth < 768 ? "200px" : "240px",
                 }}
               >
 
-                {kecamatanList.map((kecamatan, index) => (
-                  <option key={index} value={kecamatan}>
-                    {kecamatan}
-                  </option>
-                ))}
+                <select
+                  className="form-select"
+                  value={filterKecamatan}
+                  onChange={(e) => setFilterKecamatan(e.target.value)}
+                  style={{
+                    height: "50px",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    fontSize: "15px",
+                    boxShadow: "none",
+                  }}
+                >
 
-              </select>
+                  {kecamatanList.map((kecamatan, index) => (
+                    <option key={index} value={kecamatan}>
+                      {kecamatan}
+                    </option>
+                  ))}
+
+                </select>
+
+              </div>
 
             </div>
 
-          </div>
+          )}
 
           {/* LEAFLET MAP */}
           <MapContainer

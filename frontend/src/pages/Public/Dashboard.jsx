@@ -281,6 +281,43 @@ function WeatherSection({
         linkLabel="Semua Data Cuaca"
       />
 
+      {/* ── Search & Filter dipindah ke sini, di luar map ── */}
+      <div className="db-weather-filter">
+        <input
+          type="text"
+          placeholder="Cari kelurahan..."
+          className="db-weather-filter__input"
+          value={searchKelurahan}
+          onChange={(e) => setSearchKelurahan(e.target.value)}
+        />
+        <select
+          className="db-weather-filter__select"
+          value={filterKecamatan}
+          onChange={(e) => setFilterKecamatan(e.target.value)}
+        >
+          {kecamatanList.map((kecamatan, index) => (
+            <option key={index} value={kecamatan}>
+              {kecamatan}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="db-weather-map-wrap">
+        <WeatherMapView
+          filteredCuaca={filteredCuaca}
+          loading={loading}
+          countdown={countdown}
+          searchKelurahan={searchKelurahan}
+          setSearchKelurahan={setSearchKelurahan}
+          filterKecamatan={filterKecamatan}
+          setFilterKecamatan={setFilterKecamatan}
+          kecamatanList={kecamatanList}
+          onWeatherSelect={setSelectedWeather}
+          showFilters={false}
+        />
+      </div>
+
       <div className="db-weather-layout">
         <div className="db-weather-main-card">
           <div className="db-weather-main-card__bg" />
@@ -321,20 +358,6 @@ function WeatherSection({
             ))
           )}
         </div>
-      </div>
-
-      <div className="db-weather-map-wrap">
-        <WeatherMapView
-          filteredCuaca={filteredCuaca}
-          loading={loading}
-          countdown={countdown}
-          searchKelurahan={searchKelurahan}
-          setSearchKelurahan={setSearchKelurahan}
-          filterKecamatan={filterKecamatan}
-          setFilterKecamatan={setFilterKecamatan}
-          kecamatanList={kecamatanList}
-          onWeatherSelect={setSelectedWeather}
-        />
       </div>
     </div>
   );
@@ -547,7 +570,6 @@ function DashboardContent() {
     });
   }, [weatherData, searchKelurahan, filterKecamatan]);
 
-  /* current time string */
   const now = new Date();
   const dateStr = now.toLocaleDateString("id-ID", {
     weekday: "long",
@@ -558,7 +580,6 @@ function DashboardContent() {
 
   return (
     <main className="db-page">
-      {/* Page header */}
       <div className="db-page-header">
         <div>
           <div className="db-page-header__eyebrow">Dashboard BMKG</div>
@@ -574,13 +595,9 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Rob alert banner */}
       <RobAlertBanner tideData={tideData} />
-
-      {/* Stats row */}
       <SummaryStats tideData={tideData} weatherData={weatherData} />
 
-      {/* Weather section */}
       <WeatherSection
         selectedWeather={selectedWeather || weatherData?.[0]}
         setSelectedWeather={setSelectedWeather}
@@ -594,7 +611,6 @@ function DashboardContent() {
         kecamatanList={kecamatanList}
       />
 
-      {/* Tide + Map side by side */}
       <div className="db-bottom-grid">
         <TideSection data={tideData} />
         <RobMapSection data={tideData} />
