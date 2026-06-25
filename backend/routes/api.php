@@ -8,6 +8,7 @@ use App\Models\Weather;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PasangSurutController;
 use App\Http\Controllers\WilayahRobController;
+use App\Http\Controllers\ChatController;
 
 // ── Test ──────────────────────────────────────────────────────────────────────
 Route::get('/test', function () {
@@ -21,23 +22,23 @@ Route::post('/ocean-control-center/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me',      [AuthController::class, 'me']);
+    Route::get('/me', [AuthController::class, 'me']);
 
     // Profil
-    Route::get('/admin/profile',           [ProfileController::class, 'show']);
-    Route::put('/admin/profile',           [ProfileController::class, 'update']);
-    Route::put('/admin/profile/password',  [ProfileController::class, 'updatePassword']);
+    Route::get('/admin/profile', [ProfileController::class, 'show']);
+    Route::put('/admin/profile', [ProfileController::class, 'update']);
+    Route::put('/admin/profile/password', [ProfileController::class, 'updatePassword']);
 
     // Dashboard stats
     Route::get('/admin/dashboard/stats', function () {
         return response()->json([
-            'stasiun_aktif'   => 12,
+            'stasiun_aktif' => 12,
             'stasiun_offline' => 2,
-            'alert_aktif'     => 3,
-            'alert_bahaya'    => 1,
+            'alert_aktif' => 3,
+            'alert_bahaya' => 1,
             'rata_tinggi_air' => 1.4,
-            'delta_air'       => 12,
-            'prediksi_1jam'   => 1.8,
+            'delta_air' => 12,
+            'prediksi_1jam' => 1.8,
             'prediksi_status' => 'waspada',
         ]);
     });
@@ -48,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'data' => [
                 ['id' => 1, 'lokasi' => 'Pantai Marina Semarang', 'waktu' => '07:20 WIB', 'tinggi' => 1.92, 'level' => 'bahaya'],
                 ['id' => 2, 'lokasi' => 'Pelabuhan Tanjung Emas', 'waktu' => '07:05 WIB', 'tinggi' => 1.71, 'level' => 'waspada'],
-                ['id' => 3, 'lokasi' => 'Pantai Boom Rembang',    'waktu' => '06:50 WIB', 'tinggi' => 1.18, 'level' => 'normal'],
+                ['id' => 3, 'lokasi' => 'Pantai Boom Rembang', 'waktu' => '06:50 WIB', 'tinggi' => 1.18, 'level' => 'normal'],
             ]
         ]);
     });
@@ -57,10 +58,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/weather/summary', function () {
         $latest = Weather::latest()->first();
         return response()->json([
-            'suhu'       => $latest?->temperature ?? null,
-            'angin'      => $latest?->wind_speed   ?? null,
-            'kelembapan' => $latest?->humidity      ?? null,
-            'gelombang'  => $latest?->wave_height   ?? null,
+            'suhu' => $latest?->temperature ?? null,
+            'angin' => $latest?->wind_speed ?? null,
+            'kelembapan' => $latest?->humidity ?? null,
+            'gelombang' => $latest?->wave_height ?? null,
         ]);
     });
 
@@ -75,11 +76,11 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
 
     // ── Manajemen Pengguna ────────────────────────────────────────────────────
     Route::prefix('admin/users')->group(function () {
-        Route::get('/',                [UserManagementController::class, 'index']);          // daftar
-        Route::post('/',               [UserManagementController::class, 'store']);          // tambah
-        Route::put('/{id}',            [UserManagementController::class, 'update']);         // edit nama/email/role
+        Route::get('/', [UserManagementController::class, 'index']);          // daftar
+        Route::post('/', [UserManagementController::class, 'store']);          // tambah
+        Route::put('/{id}', [UserManagementController::class, 'update']);         // edit nama/email/role
         Route::patch('/{id}/password', [UserManagementController::class, 'updatePassword']); // ganti password
-        Route::patch('/{id}/toggle',   [UserManagementController::class, 'toggle']);         // aktif/nonaktif
+        Route::patch('/{id}/toggle', [UserManagementController::class, 'toggle']);         // aktif/nonaktif
     });
 
     // Route lama — tetap ada agar tidak break
@@ -91,7 +92,7 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
 Route::get('/cuaca-semarang', function () {
     return response()->json([
         'total' => Weather::count(),
-        'data'  => Weather::all(),
+        'data' => Weather::all(),
     ]);
 });
 
@@ -165,15 +166,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/admin/pasang-surut/generate-prediksi', [PasangSurutController::class, 'generatePrediksi']);
 
-Route::get('/wilayah-rob',      [WilayahRobController::class, 'index']);
-Route::get('/peta/rob-data',    [WilayahRobController::class, 'petaData']);
- 
+Route::get('/wilayah-rob', [WilayahRobController::class, 'index']);
+Route::get('/peta/rob-data', [WilayahRobController::class, 'petaData']);
+
 // ── Admin (sesuaikan middleware dengan yang dipakai di route admin lain) ──
 Route::prefix('admin/wilayah-rob')->group(function () {
-    Route::get('/',                          [WilayahRobController::class, 'adminIndex']);
-    Route::post('/',                         [WilayahRobController::class, 'store']);
-    Route::put('/{wilayahRob}',              [WilayahRobController::class, 'update']);
-    Route::delete('/{wilayahRob}',           [WilayahRobController::class, 'destroy']);
-    Route::put('/{wilayahRob}/geojson',      [WilayahRobController::class, 'updateGeojson']);
+    Route::get('/', [WilayahRobController::class, 'adminIndex']);
+    Route::post('/', [WilayahRobController::class, 'store']);
+    Route::put('/{wilayahRob}', [WilayahRobController::class, 'update']);
+    Route::delete('/{wilayahRob}', [WilayahRobController::class, 'destroy']);
+    Route::put('/{wilayahRob}/geojson', [WilayahRobController::class, 'updateGeojson']);
 });
- 
+
+
+Route::post('/chat', [ChatController::class, 'chat']);

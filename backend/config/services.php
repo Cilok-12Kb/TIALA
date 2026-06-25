@@ -36,8 +36,12 @@ return [
     ],
 
     'model_service' => [
-        'url'     => env('MODEL_SERVICE_URL', 'http://localhost:8001'),
+        'url' => env('MODEL_SERVICE_URL', 'http://localhost:8001'),
         'api_key' => env('MODEL_SERVICE_API_KEY'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
     ],
 
 ];
