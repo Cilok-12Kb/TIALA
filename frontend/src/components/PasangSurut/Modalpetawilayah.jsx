@@ -5,30 +5,29 @@ import {
 } from "react-bootstrap";
 import api from "../../services/api";
 
-// ── Konversi DMS ke decimal ──────────────────────────────────────────────────
-// Mendukung format dari tabel BIG/BPN:
-// - "6° 57' 00.0451" S"  (degree symbol, menit, detik, arah)
-// - "6 57 00.0451 S"     (spasi saja)
-// - "-6.950012"          (sudah decimal)
-// - "6.950012 S"         (decimal dengan arah)
+// ── Konfigurasi API wilayah-id ───────────────────────────────────────────────
+const WILAYAH_API = "https://wilayah-id-restapi.vercel.app/api/v1";
+const KOTA_SEMARANG_CODE = "3374";
 
+function normalizeNama(s) {
+  return (s || "").trim().toUpperCase().replace(/[\s_-]+/g, " ");
+}
+
+// ── Konversi DMS ke decimal ──────────────────────────────────────────────────
 function dmsToDecimal(str) {
   if (!str || !str.trim()) return null;
   const s = str.trim();
 
-  // Cek apakah ada arah (N/S/E/W)
   const dirMatch = s.match(/[NSEWnsew]/);
   const dir = dirMatch ? dirMatch[0].toUpperCase() : null;
   const cleaned = s.replace(/[NSEWnsew]/g, "").trim();
 
-  // Coba parse sebagai decimal murni
   const directDecimal = parseFloat(cleaned.replace(",", "."));
   if (!isNaN(directDecimal) && !cleaned.match(/[°'"]/)) {
     const val = Math.abs(directDecimal);
     return (dir === "S" || dir === "W") ? -val : val;
   }
 
-  // Ekstrak semua angka (mendukung koma/titik desimal)
   const nums = cleaned.match(/\d+(?:[.,]\d+)?/g);
   if (!nums || nums.length < 1) return null;
 
@@ -123,9 +122,18 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
   const [success,  setSuccess]  = useState("");
   const [preview,  setPreview]  = useState(null); // GeoJSON hasil konversi
 
-  // ── Mode input: bisa juga paste GeoJSON / koordinat decimal langsung ──
+  // ── Mode input manual: titik / paste GeoJSON ──
   const [inputMode, setInputMode] = useState("titik"); // "titik" | "geojson"
   const [rawGeojson, setRawGeojson] = useState("");
+
+  // ── Search API wilayah-id (selalu tampil, independen dari mode di atas) ──
+  const [villageIndex, setVillageIndex]   = useState(null);   // cache semua kelurahan se-kota
+  const [indexLoading, setIndexLoading]   = useState(false);
+  const [indexProgress, setIndexProgress] = useState("");
+  const [indexError,   setIndexError]     = useState("");
+  const [apiQuery,     setApiQuery]       = useState("");
+  const [apiResults,   setApiResults]     = useState([]);
+  const [apiSelectedFeature, setApiSelectedFeature] = useState(null); // hasil yang dipilih dari pencarian
 
   async function fetchList() {
     setLoading(true);
@@ -154,6 +162,9 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     setPreview(null);
     setRawGeojson("");
     setInputMode("titik");
+    setApiQuery("");
+    setApiResults([]);
+    setApiSelectedFeature(null);
   }
 
   function handleSelect(item) {
@@ -163,6 +174,9 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     setError(""); setSuccess("");
     setPreview(null);
     setRawGeojson("");
+    setApiQuery("");
+    setApiResults([]);
+    setApiSelectedFeature(null);
   }
 
   // ── Manajemen baris titik ──
@@ -171,6 +185,7 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     setTitiks(prev => prev.map((t, i) => i === idx ? { ...t, [field]: value } : t));
     setErrors(prev => { const e = [...prev]; if (e[idx]) delete e[idx][field]; return e; });
     setPreview(null);
+    setApiSelectedFeature(null); // input manual membatalkan pilihan hasil search
     setError(""); setSuccess("");
   }
 
@@ -185,15 +200,13 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
   }
 
   function handlePasteBulk(e) {
-    // Deteksi paste tabel (tab-separated atau banyak baris) dan parse otomatis
     const text = e.clipboardData?.getData("text") || "";
     const lines = text.trim().split("\n").filter(l => l.trim());
-    if (lines.length < 2) return; // biarkan paste normal kalau hanya 1 baris
+    if (lines.length < 2) return;
 
     e.preventDefault();
     const parsed = [];
     for (const line of lines) {
-      // Coba pisah dengan tab, titik koma, atau multi-spasi
       const parts = line.split(/\t|;/).map(p => p.trim());
       if (parts.length >= 2) {
         parsed.push({ lintang: parts[0], bujur: parts[1] });
@@ -203,10 +216,11 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
       setTitiks(parsed);
       setErrors([]);
       setPreview(null);
+      setApiSelectedFeature(null);
     }
   }
 
-  // ── Validasi & konversi ke GeoJSON ──
+  // ── Validasi & konversi ke GeoJSON (mode titik) ──
 
   function buildGeoJSON() {
     const newErrors = [];
@@ -232,7 +246,7 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
       }
 
       newErrors[i] = rowErr;
-      if (lat !== null && lng !== null) coords.push([lng, lat]); // GeoJSON: [bujur, lintang]
+      if (lat !== null && lng !== null) coords.push([lng, lat]);
     }
 
     setErrors(newErrors);
@@ -244,7 +258,6 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
       return null;
     }
 
-    // Tutup polygon (titik pertama = titik terakhir)
     const closed = coords[0][0] !== coords[coords.length - 1][0] ||
                    coords[0][1] !== coords[coords.length - 1][1]
       ? [...coords, coords[0]]
@@ -256,8 +269,101 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     };
   }
 
+  // ── Search API: load semua kelurahan se-kota sekali, lalu cache ──
+
+  async function ensureVillageIndexLoaded() {
+    if (villageIndex) return villageIndex; // sudah ada cache
+
+    setIndexLoading(true);
+    setIndexError("");
+    setIndexProgress("Memuat daftar kecamatan...");
+
+    try {
+      const resDistricts = await fetch(
+        `${WILAYAH_API}/regions/districts?regency_code=${KOTA_SEMARANG_CODE}`
+      );
+      if (!resDistricts.ok) throw new Error(`Gagal memuat kecamatan (${resDistricts.status})`);
+      const districtsJson = await resDistricts.json();
+      const districts = districtsJson.data || [];
+
+      const allFeatures = [];
+
+      for (let i = 0; i < districts.length; i++) {
+        const d = districts[i];
+        setIndexProgress(`Memuat kelurahan: ${d.nama_kecamatan} (${i + 1}/${districts.length})`);
+
+        const resVillages = await fetch(
+          `${WILAYAH_API}/boundaries/villages?district_code=${d.kode_kec}&geometry=true`
+        );
+        if (!resVillages.ok) continue;
+
+        const villagesJson = await resVillages.json();
+        const features = villagesJson.type === "FeatureCollection" ? (villagesJson.features || []) : [];
+
+        for (const feat of features) {
+          const nama = feat.properties?.nama_desa || "";
+          allFeatures.push({
+            nama,
+            namaNormal: normalizeNama(nama),
+            kecamatan: d.nama_kecamatan,
+            geometry: feat.geometry,
+          });
+        }
+      }
+
+      setVillageIndex(allFeatures);
+      setIndexProgress("");
+      return allFeatures;
+    } catch (e) {
+      setIndexError(e.message || "Gagal memuat data wilayah dari API.");
+      setIndexProgress("");
+      return null;
+    } finally {
+      setIndexLoading(false);
+    }
+  }
+
+  async function handleSearchApi() {
+    setError(""); setSuccess("");
+    setApiSelectedFeature(null);
+    setPreview(null);
+
+    const query = normalizeNama(apiQuery);
+    if (!query) {
+      setApiResults([]);
+      return;
+    }
+
+    const indexData = await ensureVillageIndexLoaded();
+    if (!indexData) return;
+
+    const matches = indexData.filter(v => v.namaNormal.includes(query));
+    setApiResults(matches);
+  }
+
+  function handlePickApiResult(feature) {
+    setApiSelectedFeature(feature);
+    setError(""); setSuccess("");
+    // belum langsung setPreview — biar user klik "Preview Polygon" sendiri
+  }
+
+  function handleCancelApiSelection() {
+    setApiSelectedFeature(null);
+    setPreview(null);
+  }
+
+  // ── Preview & Save ──
+  // Kalau ada hasil API yang dipilih, itu yang diprioritaskan,
+  // apapun mode input manual yang sedang aktif (titik/geojson).
+
   function handlePreview() {
     setError(""); setSuccess("");
+
+    if (apiSelectedFeature) {
+      setPreview(apiSelectedFeature.geometry);
+      return;
+    }
+
     if (inputMode === "geojson") {
       try {
         const parsed = JSON.parse(rawGeojson);
@@ -267,6 +373,7 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
       }
       return;
     }
+
     const geojson = buildGeoJSON();
     if (geojson) setPreview(geojson);
   }
@@ -275,7 +382,9 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     setError(""); setSuccess("");
     let geojsonStr = null;
 
-    if (inputMode === "geojson") {
+    if (apiSelectedFeature) {
+      geojsonStr = JSON.stringify(apiSelectedFeature.geometry);
+    } else if (inputMode === "geojson") {
       if (rawGeojson.trim()) {
         try { JSON.parse(rawGeojson); } catch (e) {
           setError("Format GeoJSON tidak valid: " + e.message); return;
@@ -314,6 +423,7 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
       setSuccess(`Geometri "${selected.nama_wilayah}" berhasil dihapus.`);
       setTitiks([{ ...TITIK_KOSONG }]);
       setPreview(null);
+      setApiSelectedFeature(null);
       await fetchList();
       onDataChanged?.();
     } catch (err) {
@@ -323,7 +433,6 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
     }
   }
 
-  // ── Hitung jumlah titik valid untuk preview info ──
   const validCount = titiks.filter(t => {
     const lat = dmsToDecimal(t.lintang);
     const lng = dmsToDecimal(t.bujur);
@@ -388,7 +497,10 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
                       </Badge>
                     </small>
                   </div>
-                  {/* Toggle mode input */}
+                </div>
+
+                {/* ── Baris: toggle mode manual + form search API di sampingnya ── */}
+                <div className="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
                   <div className="d-flex gap-1">
                     <Button
                       size="sm"
@@ -404,6 +516,77 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
                     >
                       Paste GeoJSON
                     </Button>
+                  </div>
+
+                  {/* Form search API — selalu tampil di sebelah toggle mode */}
+                  <div style={{ minWidth: 280 }}>
+                    <div className="d-flex gap-2">
+                      <Form.Control
+                        size="sm"
+                        placeholder="Cari kelurahan dari API, cth: Panggung Lor"
+                        value={apiQuery}
+                        onChange={e => setApiQuery(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") handleSearchApi(); }}
+                        disabled={indexLoading}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        onClick={handleSearchApi}
+                        disabled={indexLoading || !apiQuery.trim()}
+                      >
+                        Cari
+                      </Button>
+                    </div>
+
+                    {indexLoading && (
+                      <div className="d-flex align-items-center gap-2 text-muted small mt-1">
+                        <Spinner animation="border" size="sm" />
+                        {indexProgress || "Memuat..."}
+                      </div>
+                    )}
+
+                    {indexError && (
+                      <Alert variant="danger" className="small py-1 px-2 mt-1 mb-0">{indexError}</Alert>
+                    )}
+
+                    {!indexLoading && apiResults.length > 0 && !apiSelectedFeature && (
+                      <ListGroup className="mt-1" style={{ maxHeight: 180, overflowY: "auto" }}>
+                        {apiResults.map((v, i) => (
+                          <ListGroup.Item
+                            key={i}
+                            action
+                            onClick={() => handlePickApiResult(v)}
+                            className="d-flex justify-content-between align-items-center py-1 px-2"
+                            style={{ fontSize: 12 }}
+                          >
+                            <span className="fw-semibold">{v.nama}</span>
+                            <small className="text-muted">{v.kecamatan}</small>
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    )}
+
+                    {!indexLoading && villageIndex && apiQuery.trim() && apiResults.length === 0 && !apiSelectedFeature && (
+                      <div className="text-muted small mt-1">
+                        Tidak ditemukan kelurahan "{apiQuery}".
+                      </div>
+                    )}
+
+                    {apiSelectedFeature && (
+                      <div className="small text-success mt-1 d-flex align-items-center gap-2">
+                        ✓ <strong>{apiSelectedFeature.nama}</strong> ({apiSelectedFeature.kecamatan})
+                        <Button
+                          size="sm"
+                          variant="link"
+                          className="p-0 text-danger"
+                          style={{ fontSize: 12 }}
+                          onClick={handleCancelApiSelection}
+                        >
+                          batalkan
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -479,7 +662,7 @@ export default function ModalPetaWilayah({ show, onHide, onDataChanged }) {
                       rows={10}
                       placeholder={`{\n  "type": "Polygon",\n  "coordinates": [[[110.4, -6.9], ...]]\n}`}
                       value={rawGeojson}
-                      onChange={e => { setRawGeojson(e.target.value); setPreview(null); setError(""); setSuccess(""); }}
+                      onChange={e => { setRawGeojson(e.target.value); setPreview(null); setApiSelectedFeature(null); setError(""); setSuccess(""); }}
                       style={{ fontFamily: "monospace", fontSize: 12, marginBottom: 12 }}
                     />
                   </>

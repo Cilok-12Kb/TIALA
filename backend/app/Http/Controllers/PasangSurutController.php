@@ -150,12 +150,12 @@ class PasangSurutController extends Controller
 
         // ============================
         // MODEL BARU
-        // LOOKBACK = 48
+        // LOOKBACK = 360
         // Lag maksimum = 24 jam
         // Maka perlu 72 jam historis
         // ============================
 
-        $LOOKBACK = 48;
+        $LOOKBACK = 72;
         $LAG_MAX  = 24;
         $TOTAL_HISTORY = $LOOKBACK + $LAG_MAX;
 

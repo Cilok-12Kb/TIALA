@@ -78,6 +78,7 @@ function PasangSurutContent() {
             selectedDate={selectedDate}
             selectedHour={selectedHour}
             onHourChange={setSelectedHour}
+            showExport={false}
           />
         )}
       </Container>

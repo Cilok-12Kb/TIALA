@@ -35,6 +35,35 @@ export function getRobColor(tinggiRob, tergenang) {
   return "#ff0000";
 }
 
+// Daftar warna + label legend potensi rob — satu sumber kebenaran dipakai
+// oleh legend di AdminPetaMap (label singkat) maupun MapLegend publik
+// (label dengan rentang meter), supaya warna & ambang batas selalu konsisten.
+export const ROB_LEVEL_LEGEND = [
+  { level: "Tenang", color: "#23c000", rangeLabel: "Tenang" },
+  { level: "Rendah", color: "#ffff00", rangeLabel: "Rendah (< 0.4 m)" },
+  { level: "Sedang", color: "#ffb000", rangeLabel: "Sedang (0.4 – 0.7 m)" },
+  { level: "Tinggi", color: "#ff0000", rangeLabel: "Tinggi (> 0.7 m)" },
+];
+
+// Bangun array GeoJSON Feature dari robData (cuma item yang punya geometry).
+// Dipakai bersama oleh AdminPetaMap (untuk cek hasGeometry) dan
+// RobPolygonLayer (untuk render polygon-nya).
+export function buildRobFeatures(robData) {
+  return (robData || [])
+    .filter(item => item.geometry)
+    .map(item => ({
+      type: "Feature",
+      properties: {
+        nama_wilayah: item.nama_wilayah,
+        tinggi_rob:   item.tinggi_rob,
+        tinggi_tanah: item.tinggi_tanah,
+        tinggi_air:   item.tinggi_air,
+        tergenang:    item.tergenang,
+      },
+      geometry: item.geometry,
+    }));
+}
+
 export function formatTanggalJam(tanggal, jam) {
   if (!tanggal && jam == null) return "-";
   const date = new Date(tanggal + "T00:00:00");

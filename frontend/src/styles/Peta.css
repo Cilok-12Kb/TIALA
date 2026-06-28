@@ -1,13 +1,21 @@
+/* ── Layout halaman peta ── */
+
 .peta-page {
   padding: 20px 32px 32px;
   background: #f7f7f7;
 }
 
+/* Catatan: sebelumnya ada 2 definisi .peta-card di file ini — satu di sini,
+   satu lagi override di bawah pakai !important tanpa media guard. Override
+   itu otomatis menang di SEMUA ukuran layar (termasuk mobile), sehingga
+   setting mobile "height: 75vh / min-height: 500px" yang lama sebenarnya
+   sudah tidak pernah berlaku. Digabung jadi satu definisi berikut, sesuai
+   perilaku yang benar-benar tampil saat ini. */
 .peta-card {
   position: relative;
   width: 100%;
-  height: calc(100vh - 170px);
-  min-height: 560px;
+  height: auto;
+  min-height: 600px;
   padding: 28px;
   background: white;
   border: 1px solid #d8d8d8;
@@ -15,39 +23,21 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
+/* Sama seperti .peta-card, sebelumnya .peta-map punya 2 definisi (base +
+   override !important untuk fixed height 520px). Digabung jadi satu —
+   override mobile-nya tetap valid & dipertahankan di media query bawah. */
 .peta-map {
   width: 100%;
-  height: 85%;
+  height: 520px;
   border-radius: 22px;
   overflow: hidden;
   z-index: 1;
 }
 
-.custom-map-pin {
-  background: transparent;
-  border: none;
-}
-
-.pin-dot {
-  width: 22px;
-  height: 22px;
-  background: #ff8a00;
-  border: 3px solid white;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-}
-
-.pin-dot::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 5px;
-  left: 5px;
-}
+/* ── Override tampilan popup Leaflet bawaan ──
+   Tetap dipakai walau isi popup-nya sekarang inline style (lihat
+   RobPolygonLayer.jsx), karena ini override wrapper bawaan Leaflet itu
+   sendiri, bukan konten di dalamnya. */
 
 .leaflet-popup-content-wrapper {
   border-radius: 8px;
@@ -57,142 +47,6 @@
 .leaflet-popup-content {
   margin: 0;
 }
-
-.map-info-popup {
-  width: 340px;
-  padding: 20px;
-  background: white;
-  font-size: 13px;
-}
-
-.popup-date {
-  width: fit-content;
-  margin: 0 auto 16px;
-  padding: 8px 22px;
-  border-radius: 7px;
-  background: #eaf1ff;
-  color: #0084ff;
-  font-weight: 500;
-}
-
-.map-info-popup h6 {
-  margin-bottom: 14px;
-  font-weight: 700;
-  color: #111;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  background: #eaf1ff;
-  border-bottom: 1px solid #7bbcff;
-  color: #0084ff;
-}
-
-.info-row span {
-  font-weight: 500;
-}
-
-.info-row strong {
-  font-weight: 600;
-}
-
-.risk-status {
-  min-width: 90px;
-  height: 20px;
-  font-size: 0;
-  border: 1px solid #333;
-}
-
-.risk-status.low {
-  background: #23c000;
-}
-
-.risk-status.medium {
-  background: #ffff00;
-}
-
-.risk-status.warning {
-  background: #ffb000;
-}
-
-.risk-status.danger {
-  background: #ff0000;
-}
-
-.risk-legend {
-  position: absolute;
-  left: 48px;
-  bottom: 38px;
-  z-index: 500;
-  width: 150px;
-  padding: 8px 10px;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
-  font-size: 10px;
-}
-
-.risk-legend p {
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: #555;
-}
-
-.risk-legend div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.risk-box {
-  width: 45px;
-  height: 12px;
-  border: 1px solid #333;
-}
-
-.risk-box.low {
-  background: #23c000;
-}
-
-.risk-box.medium {
-  background: #ffff00;
-}
-
-.risk-box.warning {
-  background: #ffb000;
-}
-
-.risk-box.danger {
-  background: #ff0000;
-}
-
-@media (max-width: 768px) {
-  .peta-page {
-    padding: 14px;
-  }
-
-  .peta-card {
-    height: 75vh;
-    min-height: 500px;
-    padding: 14px;
-  }
-
-  .map-info-popup {
-    width: 260px;
-  }
-
-  .risk-legend {
-    left: 24px;
-    bottom: 24px;
-  }
-}
-
-/* ── Tambahkan ke bagian bawah src/styles/Peta.css ── */
 
 /* ── Tabel detail wilayah di bawah peta ── */
 
@@ -235,47 +89,19 @@
   border-bottom: none;
 }
 
-.rob-level-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #000;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  min-width: 80px;
-  text-align: center;
-}
-
-/* ── Popup polygon rob di peta ── */
-
-.rob-polygon-popup {
-  font-size: 13px;
-  line-height: 1.6;
-  min-width: 180px;
-}
-
-.rob-polygon-popup strong {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 4px;
-  color: #0f172a;
-}
-
-/* ── Peta card override: buat lebih tinggi supaya tabel muat ── */
-
-.peta-card {
-  height: auto !important;    /* override height calc supaya tabel tidak terpotong */
-  min-height: 600px;
-}
-
-.peta-map {
-  height: 520px !important;   /* fixed height supaya tidak bergantung pada parent */
-}
+/* ── Responsive ── */
 
 @media (max-width: 768px) {
+  .peta-page {
+    padding: 14px;
+  }
+
+  .peta-card {
+    padding: 14px;
+  }
+
   .peta-map {
-    height: 380px !important;
+    height: 380px;
   }
 
   .wilayah-table-heading {

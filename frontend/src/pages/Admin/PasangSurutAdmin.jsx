@@ -117,6 +117,7 @@ export default function PasangSurutAdmin() {
               selectedDate={selectedDate}
               selectedHour={selectedHour}
               onHourChange={setSelectedHour}
+              showExport={true}
             />
           )}
         </Container>
