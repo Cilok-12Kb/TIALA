@@ -1,393 +1,223 @@
 /* ============================================================
    Dashboard.css — White formal theme · BMKG Rob Watch
+   Direvisi: max-width lebih lebar (1700px) + breakpoint
+   mobile-first ala Tailwind (md:/lg:) + rule diringkas pakai
+   @apply, plus dead CSS (komponen lama yang sudah diganti
+   TideChart/AdminPetaMap) dibersihkan.
    ============================================================ */
 
-/* ── Base ── */
+/* Tailwind v4: file ini bukan entry point, jadi @apply butuh
+   @reference ke file utama supaya Tailwind tahu utility class
+   apa saja yang tersedia (tidak menduplikasi output CSS-nya). */
+@reference "../index.css";
+
+/* ── Page Wrapper & Card ── */
+.db-page-wrapper {
+  @apply min-h-screen bg-[#F8FAFC] px-5 pt-8 pb-16;
+}
+
+/* .db-page = card putih yang membungkus semua konten dashboard.
+   Mobile-first: default (mobile) padding lebih kecil & radius lebih
+   kecil, baru di md: (≥768px) naik ke ukuran penuh. */
 .db-page {
-  min-height: 100vh;
-  background: #F8FAFC;
-  padding: 32px 20px 64px;
-  max-width: 1400px;
-  margin: 0 auto;
+  @apply mx-auto max-w-[1700px] text-[#0F172A]
+         bg-white border border-black/[0.06]
+         rounded-3xl shadow-[0_20px_50px_rgba(15,23,42,0.08)]
+         p-5 md:p-8 md:rounded-[32px];
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #0F172A;
 }
 
 /* ── Page Header ── */
 .db-page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  @apply flex items-start justify-between mb-6 gap-4 flex-wrap;
 }
 
 .db-page-header__eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #0284C7;
-  margin-bottom: 6px;
+  @apply text-[11px] font-bold uppercase tracking-[2px] text-[#0284C7] mb-1.5;
 }
 
 .db-page-header__title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #0F172A;
-  line-height: 1.15;
-  margin: 0 0 6px;
-  letter-spacing: -0.5px;
+  @apply text-[28px] md:text-[32px] font-bold text-[#0F172A] leading-[1.15] tracking-[-0.5px] mb-1.5;
 }
 
 .db-page-header__place {
-  color: #0284C7;
+  @apply text-[#0284C7];
 }
 
 .db-page-header__date {
-  font-size: 13px;
-  color: #94A3B8;
-  font-weight: 400;
+  @apply text-[13px] text-[#94A3B8] font-normal;
 }
 
 /* ── Live Badge ── */
 .db-live-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #15803D;
-  white-space: nowrap;
-  margin-top: 6px;
+  @apply flex items-center gap-[7px] bg-[#F0FDF4] border border-[#BBF7D0]
+         rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#15803D]
+         whitespace-nowrap mt-1.5;
 }
 
 .db-live-badge__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22C55E;
+  @apply w-[7px] h-[7px] rounded-full bg-[#22C55E];
   animation: db-pulse 1.8s ease-in-out infinite;
 }
 
 @keyframes db-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.75); }
+  50%      { opacity: 0.5; transform: scale(0.75); }
 }
 
 /* ── Alert Banner ── */
 .db-alert-banner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 24px;
-  border: 1px solid transparent;
-  overflow: hidden;
+  @apply relative flex items-center gap-3.5 rounded-[10px] px-4.5 py-3.5 mb-6
+         border border-transparent overflow-hidden;
 }
 
-.db-alert-banner--tinggi {
-  background: #FEF2F2;
-  border-color: #FECACA;
-}
-
-.db-alert-banner--sedang {
-  background: #FFFBEB;
-  border-color: #FDE68A;
-}
+.db-alert-banner--tinggi { @apply bg-[#FEF2F2] border-[#FECACA]; }
+.db-alert-banner--sedang { @apply bg-[#FFFBEB] border-[#FDE68A]; }
 
 .db-alert-banner__icon {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center;
 }
 
-.db-alert-banner--tinggi .db-alert-banner__icon {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-.db-alert-banner--sedang .db-alert-banner__icon {
-  background: #FEF3C7;
-  color: #D97706;
-}
+.db-alert-banner--tinggi .db-alert-banner__icon { @apply bg-[#FEE2E2] text-[#DC2626]; }
+.db-alert-banner--sedang .db-alert-banner__icon { @apply bg-[#FEF3C7] text-[#D97706]; }
 
 .db-alert-banner__body {
-  flex: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
+  @apply flex-1 flex items-baseline gap-2.5 flex-wrap;
 }
 
 .db-alert-banner__tag {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
+  @apply text-[10px] font-extrabold uppercase tracking-[1.2px] px-2 py-0.5 rounded whitespace-nowrap;
 }
 
-.db-alert-banner--tinggi .db-alert-banner__tag {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-.db-alert-banner--sedang .db-alert-banner__tag {
-  background: #FEF3C7;
-  color: #D97706;
-}
+.db-alert-banner--tinggi .db-alert-banner__tag { @apply bg-[#FEE2E2] text-[#DC2626]; }
+.db-alert-banner--sedang .db-alert-banner__tag { @apply bg-[#FEF3C7] text-[#D97706]; }
 
 .db-alert-banner__text {
-  font-size: 13px;
-  color: #374151;
-  line-height: 1.4;
+  @apply text-[13px] text-gray-700 leading-[1.4];
 }
 
 .db-alert-banner__text strong {
-  font-weight: 600;
-  color: #111827;
+  @apply font-semibold text-gray-900;
 }
 
 .db-alert-banner__pulse {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  @apply absolute right-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full;
 }
 
 .db-alert-banner--tinggi .db-alert-banner__pulse {
-  background: #EF4444;
-  box-shadow: 0 0 0 0 rgba(239,68,68,0.4);
-  animation: db-ring 1.5s ease-out infinite;
+  @apply bg-[#EF4444];
+  animation: db-ring-red 1.5s ease-out infinite;
 }
 
 .db-alert-banner--sedang .db-alert-banner__pulse {
-  background: #F59E0B;
-  box-shadow: 0 0 0 0 rgba(245,158,11,0.4);
-  animation: db-ring 1.5s ease-out infinite;
+  @apply bg-[#F59E0B];
+  animation: db-ring-amber 1.5s ease-out infinite;
 }
 
-@keyframes db-ring {
+@keyframes db-ring-red {
   0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
   70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
   100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
 }
 
-/* ── Stats Grid ── */
-.db-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+@keyframes db-ring-amber {
+  0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+  70%  { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
 }
 
-@media (max-width: 900px) {
-  .db-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ── Stats Grid ──
+   Mobile-first: 1 kolom di HP, 2 kolom mulai sm:, 4 kolom mulai lg: */
+.db-stats-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6;
 }
 
 .db-stat-card {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  @apply bg-white rounded-xl border border-[#E2E8F0] px-4.5 py-4 flex items-center gap-3.5;
 }
 
 .db-stat-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  @apply w-11 h-11 rounded-[10px] flex items-center justify-center flex-shrink-0;
 }
 
-.db-stat-card__icon--blue  { background: #EFF6FF; color: #2563EB; }
-.db-stat-card__icon--red   { background: #FEF2F2; color: #DC2626; }
-.db-stat-card__icon--amber { background: #FFFBEB; color: #D97706; }
-.db-stat-card__icon--green { background: #F0FDF4; color: #15803D; }
+.db-stat-card__icon--blue  { @apply bg-[#EFF6FF] text-[#2563EB]; }
+.db-stat-card__icon--red   { @apply bg-[#FEF2F2] text-[#DC2626]; }
+.db-stat-card__icon--amber { @apply bg-[#FFFBEB] text-[#D97706]; }
+.db-stat-card__icon--green { @apply bg-[#F0FDF4] text-[#15803D]; }
 
 .db-stat-card__label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #94A3B8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  @apply text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.5px] mb-1;
 }
 
 .db-stat-card__value {
-  font-size: 26px;
-  font-weight: 700;
-  color: #0F172A;
-  line-height: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
+  @apply text-[26px] font-bold text-[#0F172A] leading-none flex items-baseline gap-1;
 }
 
 .db-stat-card__unit {
-  font-size: 12px;
-  font-weight: 400;
-  color: #94A3B8;
+  @apply text-xs font-normal text-[#94A3B8];
 }
 
-.db-stat-card--red .db-stat-card__value { color: #DC2626; }
-.db-stat-card--amber .db-stat-card__value { color: #D97706; }
+.db-stat-card--red .db-stat-card__value   { @apply text-[#DC2626]; }
+.db-stat-card--amber .db-stat-card__value { @apply text-[#D97706]; }
 
-/* ── Card wrapper ── */
+/* ── Card Wrapper (dipakai semua section: cuaca, header card, dll) ── */
 .db-card {
-  background: #fff;
-  border-radius: 14px;
-  border: 1px solid #E2E8F0;
-  padding: 22px 24px;
-  margin-bottom: 20px;
+  @apply bg-white rounded-2xl border border-[#E2E8F0] p-5 md:px-6 md:py-5.5 mb-5;
+}
+
+/* Varian khusus header card (SectionHeaderCard) — tanpa border-bottom
+   internal karena tidak ada konten lain di bawahnya di card yang sama */
+.db-card--header {
+  @apply pb-4;
 }
 
 /* ── Section Header ── */
 .db-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #F1F5F9;
+  @apply flex items-center justify-between gap-3 flex-wrap;
+}
+
+/* Section header di dalam .db-card biasa (bukan header card) tetap
+   butuh border-bottom pemisah dari konten di bawahnya */
+.db-card:not(.db-card--header) > .db-section-header {
+  @apply mb-4.5 pb-3.5 border-b border-[#F1F5F9];
 }
 
 .db-section-header__left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @apply flex items-center gap-2.5;
 }
 
 .db-section-header__icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #EFF6FF;
-  color: #2563EB;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  @apply w-[34px] h-[34px] rounded-lg bg-[#EFF6FF] text-[#2563EB]
+         flex items-center justify-center flex-shrink-0;
 }
 
 .db-section-header__title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0F172A;
-  line-height: 1.2;
+  @apply text-[15px] font-bold text-[#0F172A] leading-tight;
 }
 
 .db-section-header__subtitle {
-  font-size: 12px;
-  color: #94A3B8;
-  margin-top: 1px;
+  @apply text-xs text-[#94A3B8] mt-[1px];
 }
 
 .db-detail-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
-  background: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  color: #0284C7;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  white-space: nowrap;
-}
-
-.db-detail-btn:hover {
-  background: #EFF6FF;
-  border-color: #BAE6FD;
+  @apply flex items-center gap-1.5 px-3.5 py-[7px] rounded-lg border border-[#E2E8F0]
+         bg-white text-xs font-semibold text-[#0284C7] cursor-pointer whitespace-nowrap
+         transition-colors duration-150
+         hover:bg-[#EFF6FF] hover:border-[#BAE6FD];
 }
 
 .db-detail-btn svg {
-  transition: transform 0.15s;
+  @apply transition-transform duration-150;
 }
 
 .db-detail-btn:hover svg {
-  transform: translateX(2px);
-}
-
-/* ── Weather Filter (BARU) ── */
-.db-weather-filter {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.db-weather-filter__input {
-  flex: 1;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  padding: 0 14px;
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.15s;
-  color: #0F172A;
-}
-
-.db-weather-filter__input:focus {
-  border-color: #0284C7;
-}
-
-.db-weather-filter__input::placeholder {
-  color: #CBD5E1;
-}
-
-.db-weather-filter__select {
-  width: 200px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  padding: 0 12px;
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  background: #fff;
-  color: #0F172A;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.db-weather-filter__select:focus {
-  border-color: #0284C7;
+  @apply translate-x-0.5;
 }
 
 /* ── Weather Map ── */
 .db-weather-map-wrap {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #E2E8F0;
-  height: 550px; /* tetap sama, search bar sekarang di luar */
-  margin-bottom: 16px;
+  @apply rounded-[10px] overflow-hidden border border-[#E2E8F0] mb-4;
+  height: 550px;
 }
 
 .db-weather-map-wrap > * {
@@ -396,38 +226,20 @@
 
 /* ── Weather Slider ── */
 .db-weather-slider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @apply flex items-center gap-2.5;
 }
 
 .db-weather-slider__nav {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid #E2E8F0;
-  background: #fff;
-  color: #0284C7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.db-weather-slider__nav:hover {
-  background: #EFF6FF;
-  border-color: #BAE6FD;
+  @apply flex-shrink-0 w-9 h-9 rounded-full border border-[#E2E8F0] bg-white
+         text-[#0284C7] flex items-center justify-center cursor-pointer
+         transition-colors duration-150
+         hover:bg-[#EFF6FF] hover:border-[#BAE6FD];
 }
 
 .db-weather-main-card {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
+  @apply relative rounded-xl overflow-hidden flex-1;
   min-height: 200px;
   background: #0284C7;
-  flex: 1;
   animation: db-slide-fade 0.4s ease;
 }
 
@@ -437,286 +249,71 @@
 }
 
 .db-weather-slider__dots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 14px;
+  @apply flex justify-center gap-1.5 mt-3.5;
 }
 
 .db-weather-slider__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #E2E8F0;
-  cursor: pointer;
-  transition: background 0.15s, width 0.15s;
+  @apply w-1.5 h-1.5 rounded-full bg-[#E2E8F0] cursor-pointer
+         transition-all duration-150;
 }
 
 .db-weather-slider__dot--active {
-  background: #0284C7;
-  width: 18px;
-  border-radius: 3px;
+  @apply bg-[#0284C7] w-[18px] rounded;
 }
 
 .db-weather-main-card__bg {
-  position: absolute;
-  inset: 0;
+  @apply absolute inset-0 opacity-95;
   background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 60%, #38BDF8 100%);
-  opacity: 0.95;
 }
 
 .db-weather-main-card__content {
-  position: relative;
-  z-index: 1;
-  padding: 22px 20px;
-  color: #fff;
+  @apply relative z-10 px-5 py-5.5 text-white;
 }
 
 .db-weather-main-card__loc {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 8px;
+  @apply flex items-center gap-[5px] text-xs font-medium text-white/80 mb-2;
 }
 
 .db-weather-main-card__temp {
-  font-size: 56px;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 6px;
-  letter-spacing: -2px;
+  @apply text-[56px] font-bold leading-none mb-1.5 tracking-[-2px];
 }
 
 .db-weather-main-card__desc {
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 16px;
+  @apply text-[15px] font-semibold text-white/90 mb-4;
 }
 
 .db-weather-main-card__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.8);
-  border-top: 1px solid rgba(255,255,255,0.2);
-  padding-top: 12px;
+  @apply flex flex-wrap gap-2.5 text-xs text-white/80
+         border-t border-white/20 pt-3;
 }
 
-/* ── Bottom Grid ── */
-.db-bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  align-items: start;
+/* ── Weather Summary Mini Card (kartu kecil pilih kelurahan) ── */
+.db-weather-mini {
+  @apply flex items-center gap-3 p-3 rounded-xl border border-[#E2E8F0]
+         bg-white cursor-pointer transition-colors duration-150
+         hover:border-[#BAE6FD];
 }
 
-@media (max-width: 1100px) {
-  .db-bottom-grid {
-    grid-template-columns: 1fr;
-  }
+.db-weather-mini--active {
+  @apply border-[#0284C7] bg-[#EFF6FF];
 }
 
-/* ── Tide Table ── */
-.db-tide-table-wrap {
-  overflow-x: auto;
+.db-weather-mini__temp {
+  @apply text-2xl font-bold text-[#0F172A] flex-shrink-0;
 }
 
-.db-tide-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+.db-weather-mini__info {
+  @apply flex-1 min-w-0;
 }
 
-.db-tide-table thead tr {
-  border-bottom: 2px solid #F1F5F9;
+.db-weather-mini__loc {
+  @apply text-sm font-semibold text-[#0F172A] truncate;
 }
 
-.db-tide-table th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #94A3B8;
-  padding: 0 12px 10px 0;
-  white-space: nowrap;
+.db-weather-mini__desc {
+  @apply text-xs text-[#94A3B8] truncate;
 }
 
-.db-tide-table td {
-  padding: 11px 12px 11px 0;
-  border-bottom: 1px solid #F8FAFC;
-  vertical-align: middle;
-}
-
-.db-tide-table tbody tr:hover td {
-  background: #FAFAFA;
-}
-
-.db-tide-table__loc {
-  font-weight: 600;
-  color: #1E293B;
-  white-space: nowrap;
-}
-
-.db-tide-table__val {
-  font-family: 'Space Grotesk', monospace, sans-serif;
-  font-weight: 700;
-}
-
-.db-tide-val--tinggi { color: #DC2626; }
-.db-tide-val--sedang { color: #D97706; }
-.db-tide-val--rendah { color: #2563EB; }
-.db-tide-val--tenang { color: #15803D; }
-
-.db-tide-table__time {
-  font-size: 12px;
-  color: #94A3B8;
-  white-space: nowrap;
-}
-
-.db-table-overflow-hint {
-  text-align: center;
-  font-size: 12px;
-  color: #94A3B8;
-  padding: 10px 0 2px;
-  border-top: 1px dashed #E2E8F0;
-  margin-top: 4px;
-}
-
-/* ── Status Pills ── */
-.db-status-pill {
-  display: inline-block;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid;
-}
-
-.db-status-pill--pasang {
-  background: #EFF6FF;
-  color: #2563EB;
-  border-color: #BFDBFE;
-}
-
-.db-status-pill--surut {
-  background: #F0FDF4;
-  color: #15803D;
-  border-color: #BBF7D0;
-}
-
-/* ── Rob Badges ── */
-.db-rob-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.db-rob-badge--tinggi { background: #FEE2E2; color: #DC2626; }
-.db-rob-badge--sedang { background: #FEF3C7; color: #D97706; }
-.db-rob-badge--rendah { background: #DBEAFE; color: #2563EB; }
-.db-rob-badge--tenang { background: #DCFCE7; color: #15803D; }
-
-/* ── Rob Map Layout ── */
-.db-rob-layout {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .db-rob-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.db-rob-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.db-rob-legend__title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #94A3B8;
-  margin-bottom: 12px;
-}
-
-.db-rob-legend__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid #F1F5F9;
-}
-
-.db-rob-legend__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.db-rob-legend__dot--tinggi { background: #EF4444; }
-.db-rob-legend__dot--sedang { background: #F59E0B; }
-.db-rob-legend__dot--rendah { background: #3B82F6; }
-.db-rob-legend__dot--tenang { background: #22C55E; }
-
-.db-rob-legend__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  flex: 1;
-}
-
-.db-rob-legend__count {
-  font-size: 11px;
-  color: #94A3B8;
-}
-
-.db-rob-legend__divider {
-  border-top: 1px dashed #E2E8F0;
-  margin: 12px 0 10px;
-}
-
-.db-rob-legend__note {
-  font-size: 10px;
-  color: #CBD5E1;
-  line-height: 1.5;
-}
-
-.db-rob-map-wrap {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #E2E8F0;
-  min-height: 280px;
-}
-
-/* ── Misc ── */
-.db-loading {
-  padding: 24px;
-  text-align: center;
-  font-size: 13px;
-  color: #94A3B8;
-}
-
-.db-empty {
-  padding: 24px;
-  text-align: center;
-  font-size: 13px;
-  color: #CBD5E1;
-  background: #F8FAFC;
-  border-radius: 8px;
+.db-weather-mini__stats {
+  @apply flex gap-2 text-[11px] text-[#94A3B8] mt-0.5;
 }

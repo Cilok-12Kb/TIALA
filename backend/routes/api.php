@@ -96,55 +96,7 @@ Route::get('/cuaca-semarang', function () {
     ]);
 });
 
-// ── Pasang Surut ──────────────────────────────────────────────────────────────
-Route::get('/pasang-surut', function () {
-    $robAreas = [
-        'Tambakharjo',
-        'Tawangsari',
-        'Tawangmas',
-        'Panggung Lor',
-        'Bandarharjo',
-        'Tanjung Mas',
-        'Kemijen',
-        'Tambakrejo',
-        'Terboyo Kulon',
-        'Terboyo Wetan',
-        'Trimulyo',
-    ];
 
-    $data = Weather::whereIn('desa', $robAreas)
-        ->orderBy('desa', 'asc')
-        ->orderBy('local_datetime', 'desc')
-        ->get()
-        ->unique('desa')
-        ->values()
-        ->map(function ($item, $index) {
-            $tideHeight = round(
-                1.5 + sin($index / 2) * 0.8 + ($item->ws ?? 0) / 100,
-                2
-            );
-
-            return [
-                'id' => $item->id,
-                'lokasi' => $item->desa . ', ' . $item->kecamatan,
-                'desa' => $item->desa,
-                'kecamatan' => $item->kecamatan,
-
-                'lat' => $item->lat,
-                'lon' => $item->lon,
-
-                'datetime' => $item->local_datetime,
-                'tide_height' => $tideHeight,
-                'status' => $tideHeight >= 1.8 ? 'Pasang' : 'Surut',
-                'kenaikan_air' => $tideHeight,
-            ];
-        });
-
-    return response()->json([
-        'total' => $data->count(),
-        'data' => $data,
-    ]);
-});
 
 Route::get('/weather/rata-rata', [WeatherController::class, 'rataRata']);
 
