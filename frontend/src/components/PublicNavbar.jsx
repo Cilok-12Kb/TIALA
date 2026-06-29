@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import bmkgLogo from "../assets/images/Logo.jpg";
+import bmkgLogo from "../assets/images/Logo.png";
 
 export default function PublicNavbar() {
 

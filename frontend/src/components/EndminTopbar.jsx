@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function EndminTopbar({ alerts = [] }) {
+export default function EndminTopbar() {
   const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
 
@@ -18,30 +18,110 @@ export default function EndminTopbar({ alerts = [] }) {
 
   return (
     <div style={s.topbar}>
-      <div>
-        <div style={s.pageTitle}>Dashboard Overview</div>
-        <div style={s.pageMeta}>{formatDate(time)} — {formatTime(time)} WIB</div>
+      <div style={s.left}>
+        <div style={s.titleRow}>
+          <div style={s.pulse} />
+          <span style={s.pageTitle}>Dashboard Overview</span>
+          <span style={s.liveBadge}>LIVE</span>
+        </div>
+        <div style={s.pageMeta}>
+          <i className="ti ti-calendar" style={{ fontSize: 11, marginRight: 4 }} />
+          {formatDate(time)} — {formatTime(time)} WIB
+        </div>
       </div>
+
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button style={s.iconBtn} onClick={() => navigate("/ocean-dashboard/peringatan")} title="Peringatan">
-          <i className="ti ti-bell" style={{ fontSize: 16, color: "#e0fdf4" }} />
-          {alerts.filter((a) => a.level === "bahaya").length > 0 && <span style={s.notifDot} />}
+        <button
+          style={s.iconBtn}
+          onClick={() => window.location.reload()}
+          title="Refresh data"
+        >
+          <i className="ti ti-refresh" style={{ fontSize: 15, color: "#bbf7d0" }} />
         </button>
-        <button style={s.iconBtn} onClick={() => window.location.reload()} title="Refresh">
-          <i className="ti ti-refresh" style={{ fontSize: 16, color: "#e0fdf4" }} />
-        </button>
-        <button style={s.iconBtn} onClick={() => navigate("/ocean-dashboard/profil")} title="Profil">
-          <i className="ti ti-user" style={{ fontSize: 16, color: "#e0fdf4" }} />
+        <button
+          style={s.iconBtn}
+          onClick={() => navigate("/ocean-dashboard/profil")}
+          title="Profil"
+        >
+          <i className="ti ti-user" style={{ fontSize: 15, color: "#bbf7d0" }} />
         </button>
       </div>
+
+      <style>{`
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+      `}</style>
     </div>
   );
 }
 
 const s = {
-  topbar:    { background: "#16a34a", borderBottom: "1px solid #15803d", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "fixed", top: 0, left: 240, right:0, zIndex: 50 },
-  pageTitle: { fontSize: 16, fontWeight: 700, color: "#ffffff" },
-  pageMeta:  { fontSize: 12, color: "#bbf7d0", marginTop: 2 },
-  iconBtn:   { width: 34, height: 34, borderRadius: 8, background: "#15803d", border: "1px solid #166534", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", position: "relative" },
-  notifDot:  { position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#fbbf24", borderRadius: "50%", border: "2px solid #16a34a" },
+  topbar: {
+    background: "#15803d",
+    borderBottom: "1px solid #166534",
+    padding: "12px 28px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "fixed",
+    top: 0,
+    left: 240,
+    right: 0,
+    zIndex: 50,
+    boxShadow: "0 1px 8px rgba(0,0,0,0.12)",
+  },
+  left: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 3,
+  },
+  titleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  pulse: {
+    width: 7,
+    height: 7,
+    borderRadius: "50%",
+    background: "#86efac",
+    animation: "pulseDot 2s ease-in-out infinite",
+    flexShrink: 0,
+  },
+  pageTitle: {
+    fontSize: 15,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: "0.01em",
+  },
+  liveBadge: {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    color: "#15803d",
+    background: "#86efac",
+    padding: "2px 7px",
+    borderRadius: 20,
+  },
+  pageMeta: {
+    fontSize: 11,
+    color: "#86efac",
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 15,
+  },
+  iconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    background: "rgba(0,0,0,0.15)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "background 0.15s",
+  },
 };

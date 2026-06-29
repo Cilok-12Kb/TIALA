@@ -1,5 +1,6 @@
 // src/components/AdminNavbar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
+import bmkgLogo from "../assets/images/Logo.png";
 
 const navSections = [
   {
@@ -43,7 +44,11 @@ export default function AdminNavbar() {
       {/* Brand */}
       <div style={st.brand}>
         <div style={st.brandIcon}>
-          <i className="ti ti-waves" style={{ fontSize: 20, color: "#ffffff" }} />
+          <img
+            src={bmkgLogo}
+            alt="MY_OCEAN Logo"
+            style={st.logo}
+          />
         </div>
         <div>
           <div style={st.brandTitle}>MY_OCEAN</div>
@@ -138,15 +143,13 @@ const st = {
     background: "rgba(0, 0, 0, 0.15)",
   },
   brandIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    background: "linear-gradient(135deg, #2563eb, #38bdf8)",
+    width: 42,
+    height: 42,
+    borderRadius: 8,
+    overflow: "hidden",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0,
-    boxShadow: "0 0 12px rgba(56, 189, 248, 0.4)",
   },
   brandTitle: { fontSize: 13, fontWeight: 700, color: "#e0f2fe", letterSpacing: "0.06em" },
   brandSub: { fontSize: 9, color: "#4a7fa5", letterSpacing: "0.1em", marginTop: 1 },

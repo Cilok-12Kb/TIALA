@@ -17,6 +17,8 @@ import EndminCuaca from "../pages/Admin/Cuaca";
 import Pengguna from "../pages/Admin/Pengguna";
 import PasangSurutAdmin from "../pages/Admin/PasangSurutAdmin";
 import PetaAdmin from "../pages/Admin/PetaAdmin";              // ← tambahan
+import ForgotPassword from "../pages/Admin/ForgotPassword";
+import ResetPassword from "../pages/Admin/ResetPassword";
 
 export default function AppRoutes() {
   return (
@@ -32,6 +34,14 @@ export default function AppRoutes() {
 
         {/* ADMIN LOGIN */}
         <Route path="/MyOcean-Endmin" element={<Login />} />
+        <Route
+          path="/MyOcean-Endmin/forgot-password"
+          element={<ForgotPassword />}
+        />
+        <Route
+            path="/ocean-reset-password"
+            element={<ResetPassword />}
+        />
 
         {/* ADMIN PANEL */}
         <Route path="/ocean-dashboard" element={<AdminLayout />}>
