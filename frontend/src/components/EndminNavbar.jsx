@@ -32,7 +32,7 @@ export default function AdminNavbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("name");
-    navigate("/MyOcean-Endmin");
+    navigate("/TIALA-Endmin");
   };
 
   const userName = localStorage.getItem("name") || "Super Admin";
@@ -46,12 +46,12 @@ export default function AdminNavbar() {
         <div style={st.brandIcon}>
           <img
             src={bmkgLogo}
-            alt="MY_OCEAN Logo"
+            alt="TIALA Logo"
             style={st.logo}
           />
         </div>
         <div>
-          <div style={st.brandTitle}>MY_OCEAN</div>
+          <div style={st.brandTitle}>TIALA</div>
           <div style={st.brandSub}>ADMIN PANEL</div>
         </div>
       </div>

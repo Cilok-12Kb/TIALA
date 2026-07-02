@@ -10,7 +10,7 @@ export default function AdminLayout() {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     if (!token) {
-      navigate("/MyOcean-Endmin");
+      navigate("/TIALA-Endmin");
     }
   }, [navigate]);
 

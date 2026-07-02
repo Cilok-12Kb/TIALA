@@ -6,7 +6,6 @@ import Dashboard from "../pages/Public/Dashboard";
 import PasangSurut from "../pages/Public/PasangSurut";
 import Cuaca from "../pages/Public/Cuaca";
 import Peta from "../pages/Public/Peta";
-import PotensiRob from "../pages/Public/PotensiRob";
 import MarinMinamo from "../pages/Public/MarinMinamo";
 
 import Login from "../pages/Admin/Login";
@@ -29,13 +28,12 @@ export default function AppRoutes() {
         <Route path="/Pasang-Surut" element={<PasangSurut />} />
         <Route path="/Cuaca" element={<Cuaca />} />
         <Route path="/Peta" element={<Peta />} />
-        <Route path="/Potensi-Rob" element={<PotensiRob />} />
         <Route path="/marin-minamo" element={<MarinMinamo />} />
 
         {/* ADMIN LOGIN */}
-        <Route path="/MyOcean-Endmin" element={<Login />} />
+        <Route path="/TIALA-Endmin" element={<Login />} />
         <Route
-          path="/MyOcean-Endmin/forgot-password"
+          path="/TIALA-Endmin/forgot-password"
           element={<ForgotPassword />}
         />
         <Route

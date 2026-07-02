@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reset Password Admin – MY_OCEAN</title>
+  <title>Reset Password Admin – TIALA</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 0;">
@@ -25,7 +25,7 @@
                 </div>
                 <div style="text-align:left;">
                   <div style="color:#ffffff;font-size:18px;font-weight:700;
-                               letter-spacing:1px;">MY_OCEAN</div>
+                               letter-spacing:1px;">TIALA</div>
                   <div style="color:#7dd3fc;font-size:11px;">Admin Panel</div>
                 </div>
               </div>
@@ -86,7 +86,7 @@
             <td style="background:#f8fafc;border-top:1px solid #e2e8f0;
                         padding:20px 40px;text-align:center;">
               <p style="color:#94a3b8;font-size:11px;margin:0;">
-                Email ini dikirim secara otomatis oleh sistem MY_OCEAN Admin Panel.
+                Email ini dikirim secara otomatis oleh sistem TIALA Admin Panel.
                 Mohon tidak membalas email ini.
               </p>
             </td>

@@ -16,7 +16,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const res = await api.post("/MyOcean-Endmin/forgot-password", { email });
+      const res = await api.post("/TIALA-Endmin/forgot-password", { email });
       setStatus("success");
       setMessage(res.data.message);
     } catch (err) {
@@ -39,12 +39,12 @@ export default function ForgotPassword() {
            <div style={s.brandIcon}>
             <img
                 src={bmkgLogo}
-                alt="MY_OCEAN Logo"
+                alt="TIALA Logo"
                 style={s.logo}
             />
            </div>
           <div>
-            <div style={s.brandTitle}>MY_OCEAN</div>
+            <div style={s.brandTitle}>TIALA</div>
             <div style={s.brandSub}>Admin Panel</div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               Periksa folder <strong>Inbox</strong> atau <strong>Spam</strong> Anda.
               Link akan kedaluwarsa dalam <strong>60 menit</strong>.
             </p>
-            <Link to="/MyOcean-Endmin" style={s.backLink}>
+            <Link to="/TIALA-Endmin" style={s.backLink}>
               <i className="ti ti-arrow-left" style={{ fontSize: 13 }} />
               Kembali ke halaman login
             </Link>
@@ -100,7 +100,7 @@ export default function ForgotPassword() {
                 <input
                   style={s.input}
                   type="email"
-                  placeholder="superadmin@myocean.com"
+                  placeholder="superadmin@tiala.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -127,7 +127,7 @@ export default function ForgotPassword() {
             </form>
 
             <div style={s.footer}>
-              <Link to="/MyOcean-Endmin" style={s.backLink}>
+              <Link to="/TIALA-Endmin" style={s.backLink}>
                 <i className="ti ti-arrow-left" style={{ fontSize: 13 }} />
                 Kembali ke login
               </Link>

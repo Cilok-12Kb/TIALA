@@ -28,7 +28,7 @@ export default function ResetPassword() {
     }
 
     api
-      .get("/MyOcean-Endmin/reset-password/validate", {
+      .get("/TIALA-Endmin/reset-password/validate", {
         params: { token, email },
       })
       .then(() => setTokenValid(true))
@@ -60,7 +60,7 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      await api.post("/MyOcean-Endmin/reset-password", {
+      await api.post("/TIALA-Endmin/reset-password", {
         token,
         email,
         password:              form.password,
@@ -68,7 +68,7 @@ export default function ResetPassword() {
       });
       setDone(true);
       // Redirect ke login setelah 3 detik
-      setTimeout(() => navigate("/MyOcean-Endmin"), 3000);
+      setTimeout(() => navigate("/TIALA-Endmin"), 3000);
     } catch (err) {
       setErrors({
         global:
@@ -121,12 +121,12 @@ export default function ResetPassword() {
             <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, marginBottom: 20 }}>
               {tokenMessage}
             </p>
-            <Link to="/MyOcean-Endmin/forgot-password" style={s.btn2}>
+            <Link to="/TIALA-Endmin/forgot-password" style={s.btn2}>
               <i className="ti ti-refresh" style={{ fontSize: 15 }} />
               Minta Link Baru
             </Link>
             <div style={{ marginTop: 16 }}>
-              <Link to="/MyOcean-Endmin" style={s.backLink}>
+              <Link to="/TIALA-Endmin" style={s.backLink}>
                 <i className="ti ti-arrow-left" style={{ fontSize: 13 }} />
                 Kembali ke login
               </Link>
@@ -152,7 +152,7 @@ export default function ResetPassword() {
               Password Anda telah diperbarui. Anda akan diarahkan ke halaman login
               dalam beberapa detik.
             </p>
-            <Link to="/MyOcean-Endmin" style={s.btn2}>
+            <Link to="/TIALA-Endmin" style={s.btn2}>
               <i className="ti ti-login" style={{ fontSize: 15 }} />
               Ke Halaman Login
             </Link>
@@ -294,7 +294,7 @@ export default function ResetPassword() {
         </form>
 
         <div style={{ textAlign: "center", marginTop: 18 }}>
-          <Link to="/MyOcean-Endmin" style={s.backLink}>
+          <Link to="/TIALA-Endmin" style={s.backLink}>
             <i className="ti ti-arrow-left" style={{ fontSize: 13 }} />
             Kembali ke login
           </Link>
@@ -312,12 +312,12 @@ function Brand() {
       <div style={s.brandIcon}>
         <img
           src={bmkgLogo}
-          alt="MY_OCEAN Logo"
+          alt="TIALA Logo"
           style={s.logo}
         />
       </div>
       <div>
-        <div style={s.brandTitle}>MY_OCEAN</div>
+        <div style={s.brandTitle}>TIALA</div>
         <div style={s.brandSub}>Admin Panel</div>
       </div>
     </div>

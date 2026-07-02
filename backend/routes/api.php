@@ -13,11 +13,11 @@ use App\Http\Controllers\Admin\ForgotPasswordController;
 
 // ── Test ──────────────────────────────────────────────────────────────────────
 Route::get('/test', function () {
-    return response()->json(['message' => 'My_Ocean API Connected']);
+    return response()->json(['message' => 'TIALA API Connected']);
 });
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-Route::post('/MyOcean-Endmin', [AuthController::class, 'login']);
+Route::post('/TIALA-Endmin', [AuthController::class, 'login']);
 
 // ── Protected routes (semua user yang sudah login) ────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
@@ -135,16 +135,16 @@ Route::prefix('admin/wilayah-rob')->group(function () {
 Route::post('/chat', [ChatController::class, 'chat']);
 
 Route::post(
-    '/MyOcean-Endmin/forgot-password',
+    '/TIALA-Endmin/forgot-password',
     [ForgotPasswordController::class, 'sendResetLink']
 );
 
 Route::get(
-    '/MyOcean-Endmin/reset-password/validate',
+    '/TIALA-Endmin/reset-password/validate',
     [ForgotPasswordController::class, 'validateToken']
 );
 
 Route::post(
-    '/MyOcean-Endmin/reset-password',
+    '/TIALA-Endmin/reset-password',
     [ForgotPasswordController::class, 'resetPassword']
 );

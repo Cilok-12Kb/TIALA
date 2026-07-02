@@ -68,7 +68,7 @@ class ForgotPasswordController extends Controller
             'expiry'   => 60, // menit
         ], function ($mail) use ($user) {
             $mail->to($user->email, $user->name)
-                 ->subject('[MY_OCEAN] Reset Password Admin');
+                 ->subject('[TIALA] Reset Password Admin');
         });
 
         return response()->json([

@@ -15,7 +15,7 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const res = await api.post("/MyOcean-Endmin", form);
+      const res = await api.post("/TIALA-Endmin", form);
       const { token, user } = res.data;
 
       // Simpan semua data user ke localStorage
@@ -47,12 +47,12 @@ export default function Login() {
           <div style={s.brandIcon}>
             <img
               src={bmkgLogo}
-              alt="MY_OCEAN Logo"
+              alt="TIALA Logo"
               style={s.logo}
             />
           </div>
           <div>
-            <div style={s.brandTitle}>MY_OCEAN</div>
+            <div style={s.brandTitle}>TIALA</div>
             <div style={s.brandSub}>Admin Panel</div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function Login() {
             <input
               style={s.input}
               type="email"
-              placeholder="admin@myocean.com"
+              placeholder="admin@tiala.com"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
@@ -96,7 +96,7 @@ export default function Login() {
               </label>
               {/* ── Tombol Lupa Password ── */}
               <Link
-                to="/MyOcean-Endmin/forgot-password"
+                to="/TIALA-Endmin/forgot-password"
                 style={s.forgotLink}
                 tabIndex={0}
               >

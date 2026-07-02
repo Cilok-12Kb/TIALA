@@ -132,7 +132,7 @@ export default function PublicNavbar() {
                     color: "#111827",
                   }}
                 >
-                  MY_OCEAN
+                  TIALA
                 </div>
 
                 <div
