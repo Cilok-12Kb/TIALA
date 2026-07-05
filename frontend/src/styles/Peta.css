@@ -23,15 +23,35 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
+.tabel-card {
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
 /* Sama seperti .peta-card, sebelumnya .peta-map punya 2 definisi (base +
    override !important untuk fixed height 520px). Digabung jadi satu —
-   override mobile-nya tetap valid & dipertahankan di media query bawah. */
+   override mobile-nya tetap valid & dipertahankan di media query bawah.
+
+   PENTING: overflow: hidden DIPINDAH dari .peta-map ke .leaflet-container
+   (lihat aturan setelah ini). Kalau overflow: hidden ditaruh di .peta-map,
+   popup Leaflet yang muncul dekat tepi peta (atas/bawah/kiri/kanan) akan
+   ikut terpotong karena parent-nya juga meng-clip. Border-radius tetap
+   didapat dari .leaflet-container itu sendiri, jadi sudut peta tetap
+   rounded tanpa memotong popup yang keluar dari box. */
 .peta-map {
   width: 100%;
   height: 520px;
+  z-index: 1;
+}
+
+.peta-map .leaflet-container {
+  width: 100%;
+  height: 100%;
   border-radius: 22px;
   overflow: hidden;
-  z-index: 1;
 }
 
 /* ── Override tampilan popup Leaflet bawaan ──
@@ -48,7 +68,24 @@
   margin: 0;
 }
 
+/* Popup harus render di atas layer peta lain (tile, polygon) supaya tidak
+   ada elemen lain yang menutupinya. */
+.peta-map .leaflet-popup-pane {
+  z-index: 1000;
+}
+
 /* ── Tabel detail wilayah di bawah peta ── */
+
+/* Card tabel Aktual & Prediksi — dibuat terpisah, masing-masing punya
+   background/shadow sendiri, bukan 1 card besar yang membungkus keduanya. */
+.wilayah-table-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 0; /* penting: supaya .table-responsive bisa scroll horizontal
+                   saat card menyempit di layar kecil / grid 2 kolom */
+}
 
 .wilayah-table-wrapper {
   padding-top: 8px;
@@ -111,4 +148,18 @@
   .wilayah-table {
     font-size: 12px;
   }
+}
+
+/* ── Peta Admin (AdminPetaMap.jsx) ──
+   Sama seperti fix di peta publik: border-radius ditaruh di
+   .leaflet-container (bukan parent), supaya popup dekat tepi peta tidak
+   ikut terpotong. Peta admin tidak pakai maxBounds, jadi tidak perlu fix
+   viscosity/bounds seperti peta publik — cukup fix overflow ini saja. */
+.admin-peta-map-wrapper .leaflet-container {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.admin-peta-map-wrapper .leaflet-popup-pane {
+  z-index: 1000;
 }

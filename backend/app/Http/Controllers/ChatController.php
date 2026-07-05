@@ -12,6 +12,18 @@ use Carbon\Carbon;
 
 class ChatController extends Controller
 {
+    // ── Offset MSL terhadap Chart Datum/LWS stasiun pasut yang dipakai. ──
+    // Harus SAMA dengan MSL_VALUE di WilayahRobController &
+    // PasangSurutController (dan src/utils/tideHelpers.js di frontend).
+    // Tanpa offset ini, tinggi_rob yang dihitung untuk konteks chatbot
+    // akan 1.5 m lebih tinggi dari yang seharusnya, sehingga Marin bisa
+    // menyebutkan wilayah terdampak yang BEDA dari yang ditampilkan di
+    // peta/dashboard.
+    //
+    // TODO: sama seperti controller lain, pindahkan ke config/env supaya
+    // hanya didefinisikan sekali dan tidak berisiko out-of-sync.
+    const MSL_VALUE = 1.5; // meter
+
     public function chat(Request $request)
     {
         $validated = $request->validate([
@@ -212,10 +224,13 @@ class ChatController extends Controller
     }
 
     // ── Daftar wilayah rob + wilayah yang berpotensi terdampak.
-    //    PENTING: tide_height_digital dan tinggi_tanah sama-sama meter,
-    //    jadi rumusnya: tinggi_rob = tide_height_digital - tinggi_tanah
-    //    (TIDAK dikali 100 — itu bug versi sebelumnya yang bikin hasil
-    //    "wilayah terdampak" salah, karena membandingkan meter dengan cm). ──
+    //    PENTING: tide_height_digital direferensikan ke Chart Datum,
+    //    sedangkan tinggi_tanah direferensikan ke MSL — HARUS dikonversi
+    //    dulu pakai MSL_VALUE sebelum dibandingkan, persis seperti
+    //    WilayahRobController::petaData() dan PasangSurutController::robPerWilayah().
+    //    (Sebelumnya rumus ini langsung "tide_height_digital - tinggi_tanah"
+    //    tanpa offset MSL, membuat chatbot bisa menyebut wilayah terdampak
+    //    yang BEDA dari yang tampil di peta/dashboard — sudah diperbaiki.) ──
     private function buildWilayahRobText(): array
     {
         $wilayahRob = WilayahRob::all(['nama_wilayah', 'tinggi_tanah']);
@@ -241,17 +256,20 @@ class ChatController extends Controller
 
         $waktuAir = $air->tanggal->toDateString() . ' ' . str_pad($air->jam, 2, '0', STR_PAD_LEFT) . ':00';
 
+        // Konversi ke skala MSL dulu, baru dibandingkan dengan tinggi_tanah.
+        $tinggiAirMsl = $air->tide_height_digital - self::MSL_VALUE;
+
         $terdampak = $wilayahRob
-            ->map(function ($w) use ($air) {
-                $tinggiRob = round($air->tide_height_digital - $w->tinggi_tanah, 2);
+            ->map(function ($w) use ($tinggiAirMsl) {
+                $tinggiRob = round($tinggiAirMsl - $w->tinggi_tanah, 2);
                 return ['nama' => $w->nama_wilayah, 'tinggi_rob' => $tinggiRob];
             })
             ->filter(fn($w) => $w['tinggi_rob'] > 0)
             ->sortByDesc('tinggi_rob');
 
         $wilayahTerdampakText = $terdampak->isEmpty()
-            ? "\n  Tidak ada wilayah yang berpotensi terdampak rob saat ini (data jam {$waktuAir}, tinggi air {$air->tide_height_digital} m)."
-            : "\n  Wilayah berpotensi terdampak rob (data jam {$waktuAir}, tinggi air {$air->tide_height_digital} m):\n"
+            ? "\n  Tidak ada wilayah yang berpotensi terdampak rob saat ini (data jam {$waktuAir}, tinggi air {$air->tide_height_digital} m / skala MSL: " . round($tinggiAirMsl, 2) . " m)."
+            : "\n  Wilayah berpotensi terdampak rob (data jam {$waktuAir}, tinggi air {$air->tide_height_digital} m / skala MSL: " . round($tinggiAirMsl, 2) . " m):\n"
               . $terdampak->map(fn($w) => "    ⚠ {$w['nama']} (tergenang ~{$w['tinggi_rob']} m)")->join("\n");
 
         return [$wilayahText, $wilayahTerdampakText];

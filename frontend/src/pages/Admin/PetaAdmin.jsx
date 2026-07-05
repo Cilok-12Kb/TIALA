@@ -12,17 +12,29 @@ import WilayahTable from "../../components/potensi_rob/WilayahTable";
 import StatCard from "../../components/potensi_rob/StatCard";
 import { getRobPotential } from "../../utils/tideHelpers";
 
+function formatJamRange(jamMulai, jamSelesai) {
+  if (jamMulai == null || jamSelesai == null) return "-";
+  const start = String(jamMulai).padStart(2, "0") + ":00";
+  const end = String(jamSelesai + 1).padStart(2, "0") + ":00";
+  return `${start} - ${end}`;
+}
+
 export default function PetaAdmin() {
-  const [robData,  setRobData]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [robData,      setRobData]      = useState([]);
+  const [prediksiData, setPrediksiData] = useState([]);
+  const [loading,      setLoading]      = useState(true);
   const [showModalWilayah, setShowModalWilayah] = useState(false);
   const [showModalPeta,    setShowModalPeta]    = useState(false);
 
   async function fetchRobData() {
     setLoading(true);
     try {
-      const res = await api.get("/peta/rob-data");
-      setRobData(res.data.data || []);
+      const [robRes, prediksiRes] = await Promise.all([
+        api.get("/peta/rob-data"),
+        api.get("/peta/rob-prediksi"),
+      ]);
+      setRobData(robRes.data.data || []);
+      setPrediksiData(prediksiRes.data.data || []);
     } catch (err) {
       console.error("Gagal mengambil data peta rob:", err);
     } finally {
@@ -38,6 +50,31 @@ export default function PetaAdmin() {
   const dataAirAt          = robData.length > 0 ? robData[0].data_air_at : null;
   const tinggiRobMax       = robData.length > 0 ? Math.max(...robData.map(w => w.tinggi_rob ?? 0)) : 0;
   const potensialTertinggi = getRobPotential(tinggiRobMax);
+
+  // ── Ringkasan prediksi tertinggi (untuk stat card & tabel prediksi) ──
+  const tergenangPrediksi = prediksiData.filter(p => p.tergenang);
+  const prediksiTertinggi = tergenangPrediksi.length > 0
+    ? tergenangPrediksi.reduce((max, item) =>
+        item.tinggi_rob_max > max.tinggi_rob_max ? item : max
+      , tergenangPrediksi[0])
+    : null;
+  const potensiPrediksiTertinggi = prediksiTertinggi
+    ? getRobPotential(prediksiTertinggi.tinggi_rob_max)
+    : "Surut";
+
+  // Gabungkan data wilayah (nama, tinggi_tanah, geometry) dengan hasil
+  // prediksi per wilayah, supaya WilayahTable bisa dipakai apa adanya.
+  const prediksiRows = robData.map((item) => {
+    const match = prediksiData.find((p) => p.nama_wilayah === item.nama_wilayah);
+    return {
+      ...item,
+      tinggi_rob: match?.tinggi_rob_max ?? 0,
+      tergenang: match?.tergenang ?? false,
+      tinggi_air: match?.tinggi_air_prediksi_max ?? null,
+      jam_mulai: match?.jam_mulai,
+      jam_selesai: match?.jam_selesai,
+    };
+  });
 
   return (
     <>
@@ -85,8 +122,17 @@ export default function PetaAdmin() {
             </Card.Body>
           </Card>
 
-          {/* ── Stat cards ── */}
-          <Row className="g-3 mb-4">
+          {/* ── Stat cards (Aktual) ── */}
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <span
+              className="rounded-circle"
+              style={{ width: 8, height: 8, background: "#0ea5e9", display: "inline-block" }}
+            />
+            <small className="text-uppercase fw-semibold text-muted" style={{ letterSpacing: "0.5px", fontSize: 11 }}>
+              Kondisi Aktual — Data Pasang Surut Terkini
+            </small>
+          </div>
+          <Row className="g-3 mb-3">
             <Col xs={6} md={3}>
               <StatCard label="Total Wilayah" value={totalWilayah} sub="wilayah terdaftar" color="#0ea5e9" />
             </Col>
@@ -120,25 +166,108 @@ export default function PetaAdmin() {
             </Col>
           </Row>
 
-          {/* ── Peta ── */}
-          <AdminPetaMap robData={robData} />
+          {/* ── Stat card Prediksi ── */}
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <span
+              className="rounded-circle"
+              style={{ width: 8, height: 8, background: "#8b5cf6", display: "inline-block" }}
+            />
+            <small className="text-uppercase fw-semibold text-muted" style={{ letterSpacing: "0.5px", fontSize: 11 }}>
+              Prediksi — Hasil Model 24 Jam
+            </small>
+          </div>
+          <Row className="g-3 mb-4">
+            <Col xs={12} md={4}>
+              <StatCard
+                label="Prediksi Tertinggi"
+                value={potensiPrediksiTertinggi}
+                sub={
+                  prediksiTertinggi
+                    ? `${prediksiTertinggi.nama_wilayah} — ${prediksiTertinggi.tinggi_rob_max} m`
+                    : "belum ada prediksi"
+                }
+                color={
+                  potensiPrediksiTertinggi === "Tinggi" ? "#ef4444" :
+                  potensiPrediksiTertinggi === "Sedang" ? "#f59e0b" :
+                  potensiPrediksiTertinggi === "Rendah" ? "#3b82f6" : "#22c55e"
+                }
+              />
+            </Col>
+            <Col xs={12} md={4}>
+              <StatCard
+                label="Rentang Jam Puncak Rob Tertinggi"
+                value={
+                  prediksiTertinggi
+                    ? formatJamRange(prediksiTertinggi.jam_mulai, prediksiTertinggi.jam_selesai)
+                    : "-"
+                }
+                sub={prediksiTertinggi ? `di ${prediksiTertinggi.nama_wilayah}` : "WIB"}
+                color="#8b5cf6"
+              />
+            </Col>
+            <Col xs={12} md={4}>
+              <StatCard
+                label="Wilayah Terdampak (Prediksi)"
+                value={tergenangPrediksi.length}
+                sub={`dari ${totalWilayah} wilayah`}
+                color={tergenangPrediksi.length > 0 ? "#ef4444" : "#22c55e"}
+              />
+            </Col>
+          </Row>
 
-          {/* ── Tabel ── */}
-          <Card className="shadow-sm border-0 rounded-4">
-            <Card.Body className="p-3 p-md-4">
-              <Row className="align-items-center g-2 mb-3">
-                <Col xs={12} md="auto" className="me-md-auto">
-                  <h5 className="mb-0 fw-bold">Data Wilayah Rob</h5>
-                  {dataAirAt && (
-                    <small className="text-muted">
-                      Data pasang surut terkini: <strong>{dataAirAt} WIB</strong>
-                    </small>
-                  )}
-                </Col>
-              </Row>
-              <WilayahTable data={robData} loading={loading} />
-            </Card.Body>
-          </Card>
+          {/* ── Peta ── */}
+          <AdminPetaMap robData={robData} prediksiData={prediksiData} />
+
+          {/* ── Tabel Aktual & Prediksi berdampingan ── */}
+          <Row className="g-4 mt-1">
+            <Col lg={6}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="p-3 p-md-4">
+                  <Row className="align-items-center g-2 mb-3">
+                    <Col xs={12}>
+                      <h5 className="mb-0 fw-bold">Data Wilayah Rob (Aktual)</h5>
+                      {dataAirAt && (
+                        <small className="text-muted">
+                          Data pasang surut terkini: <strong>{dataAirAt} WIB</strong>
+                        </small>
+                      )}
+                    </Col>
+                  </Row>
+                  <WilayahTable data={robData} loading={loading} showDataAirColumn={false} />
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={6}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="p-3 p-md-4">
+                  <Row className="align-items-center g-2 mb-3">
+                    <Col xs={12}>
+                      <h5 className="mb-0 fw-bold">Prediksi Potensi Rob</h5>
+                      <small className="text-muted">
+                        Berdasarkan hasil model prediksi 24 jam
+                      </small>
+                    </Col>
+                  </Row>
+                  <WilayahTable
+                    data={prediksiRows}
+                    loading={loading}
+                    showDataAirColumn={false}
+                    showGeometryColumn={false}
+                    emptyMessage="Belum ada prediksi untuk tanggal ini. Gunakan fitur Generate Prediksi di menu Pasang Surut."
+                    extraColumns={[
+                      {
+                        header: "Rentang Jam Rob",
+                        render: (item) =>
+                          item.tergenang ? formatJamRange(item.jam_mulai, item.jam_selesai) : "-",
+                        className: "text-muted small",
+                      },
+                    ]}
+                  />
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
 
         </Container>
       </main>

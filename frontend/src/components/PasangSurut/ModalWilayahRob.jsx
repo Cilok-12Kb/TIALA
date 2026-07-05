@@ -120,7 +120,7 @@ export default function ModalWilayahRob({ show, onHide, onDataChanged }) {
                 value={form.tinggi_tanah}
                 onChange={e => setForm(f => ({ ...f, tinggi_tanah: e.target.value }))}
               />
-              <Form.Text className="text-muted">Dalam meter dari MSL</Form.Text>
+              <Form.Text className="text-muted">Dalam meter dari MSL (MDPL)</Form.Text>
             </div>
             <div className="col-md-2 d-flex align-items-end gap-1">
               <Button size="sm" variant="primary" onClick={handleSave} disabled={saving} className="w-100">

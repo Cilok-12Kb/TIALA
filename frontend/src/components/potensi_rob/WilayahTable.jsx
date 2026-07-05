@@ -2,26 +2,15 @@
 import { Spinner, Badge, Table } from "react-bootstrap";
 import { getRobPotential, getRobBadgeVariant, getRobColor } from "../../utils/tideHelpers";
 
-// Tabel data wilayah rob — dipakai bersama oleh halaman admin (PetaAdmin)
-// dan halaman publik (Peta). Beberapa hal sengaja dibuat bisa diatur lewat
-// prop karena kedua halaman punya kebutuhan tampilan yang sedikit berbeda:
-//
-// - showDataAirColumn: admin tampilkan kolom "Data Air" per baris,
-//   publik tidak (publik tampilkan timestamp-nya sekali di atas tabel).
-// - badgeStyle "bootstrap" (admin, 4 warna diskrit) vs "continuous"
-//   (publik, warna kontinu — match persis dengan warna polygon di peta).
-// - tableClassName: publik perlu class CSS tambahan ("wilayah-table") untuk
-//   styling custom yang sudah ada di Peta.css.
-// - emptyMessage: teks saat data kosong. Kirim `null` untuk tidak
-//   menampilkan apa-apa (dipakai publik, yang menyembunyikan tabel total
-//   saat tidak ada data, bukan menampilkan pesan).
 export default function WilayahTable({
   data,
   loading = false,
   showDataAirColumn = true,
+  showGeometryColumn = true, // BARU — default true supaya tidak mengubah pemakaian lain
   badgeStyle = "bootstrap",
   tableClassName = "",
   emptyMessage,
+  extraColumns = [],
 }) {
   if (loading) {
     return (
@@ -50,11 +39,14 @@ export default function WilayahTable({
           <tr>
             <th style={{ width: 40 }}>#</th>
             <th>Nama Wilayah</th>
-            <th>Tinggi Tanah</th>
+            <th>Tinggi Tanah (MDPL)</th>
             <th>Tinggi Air{showDataAirColumn ? " Terkini" : ""}</th>
             <th>Tinggi Rob</th>
             <th>Potensi Rob</th>
-            <th>Geometri Peta</th>
+            {showGeometryColumn && <th>Geometri Peta</th>}
+            {extraColumns.map((col) => (
+              <th key={col.header}>{col.header}</th>
+            ))}
             {showDataAirColumn && <th>Data Air</th>}
           </tr>
         </thead>
@@ -90,11 +82,18 @@ export default function WilayahTable({
                     </Badge>
                   )}
                 </td>
-                <td>
-                  <Badge bg={item.geometry ? "success" : "secondary"} className="px-2 py-1">
-                    {item.geometry ? "✓ Ada" : "Belum ada"}
-                  </Badge>
-                </td>
+                {showGeometryColumn && (
+                  <td>
+                    <Badge bg={item.geometry ? "success" : "secondary"} className="px-2 py-1">
+                      {item.geometry ? "✓ Ada" : "Belum ada"}
+                    </Badge>
+                  </td>
+                )}
+                {extraColumns.map((col) => (
+                  <td key={col.header} className={col.className}>
+                    {col.render(item)}
+                  </td>
+                ))}
                 {showDataAirColumn && (
                   <td className="text-muted small">{item.data_air_at ?? "-"}</td>
                 )}

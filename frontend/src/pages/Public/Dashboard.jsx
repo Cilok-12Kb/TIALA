@@ -15,6 +15,7 @@ function DashboardContent() {
     setSelectedWeather,
     weatherData,
     robData,
+    prediksiData, // BARU — wajib ditambahkan di useDashboardData.js (lihat instruksi di bawah)
     loadingWeather,
     countdown,
     rata,
@@ -50,8 +51,8 @@ function DashboardContent() {
           </div>
         </div>
 
-        <RobAlertBanner robData={robData} />
-        <SummaryStats robData={robData} weatherData={weatherData} />
+        <RobAlertBanner robData={robData} prediksiData={prediksiData} />
+        <SummaryStats robData={robData} weatherData={weatherData} prediksiData={prediksiData}/>
 
         <SectionHeaderCard
           icon={<CloudIcon />}
@@ -95,7 +96,7 @@ function DashboardContent() {
           linkLabel="Buka Peta Lengkap"
         />
         <div className="mb-4">
-          <AdminPetaMap robData={robData} />
+          <AdminPetaMap robData={robData} prediksiData={prediksiData} />
         </div>
       </div>
     </main>

@@ -148,3 +148,5 @@ Route::post(
     '/TIALA-Endmin/reset-password',
     [ForgotPasswordController::class, 'resetPassword']
 );
+
+Route::get('/peta/rob-prediksi', [WilayahRobController::class, 'robPrediksiPerWilayah']);

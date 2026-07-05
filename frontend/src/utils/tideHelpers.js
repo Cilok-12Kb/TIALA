@@ -15,7 +15,7 @@ export function getRobPotential(tinggiRob) {
   if (tinggiRob >= 0.7) return "Tinggi";
   if (tinggiRob >= 0.4) return "Sedang";
   if (tinggiRob > 0)    return "Rendah";
-  return "Tenang";
+  return "Surut";
 }
 
 export function getRobBadgeVariant(potential) {
@@ -39,7 +39,7 @@ export function getRobColor(tinggiRob, tergenang) {
 // oleh legend di AdminPetaMap (label singkat) maupun MapLegend publik
 // (label dengan rentang meter), supaya warna & ambang batas selalu konsisten.
 export const ROB_LEVEL_LEGEND = [
-  { level: "Tenang", color: "#23c000", rangeLabel: "Tenang" },
+  { level: "Surut", color: "#23c000", rangeLabel: "Surut" },
   { level: "Rendah", color: "#ffff00", rangeLabel: "Rendah (< 0.4 m)" },
   { level: "Sedang", color: "#ffb000", rangeLabel: "Sedang (0.4 – 0.7 m)" },
   { level: "Tinggi", color: "#ff0000", rangeLabel: "Tinggi (> 0.7 m)" },

@@ -163,4 +163,78 @@ class WilayahRobController extends Controller
             'has_geojson' => !empty($validated['geojson']),
         ]);
     }
+
+    // ── Publik: prediksi rob per wilayah (untuk ringkasan di atas peta +
+    // tabel prediksi), berdasarkan tide_height_prediction 24 jam pada tanggal
+    // tsb. Beda dari petaData() yang pakai tide_height_digital (aktual, 1 jam).
+    // WilayahRobController.php
+    public function robPrediksiPerWilayah(Request $request)
+    {
+        $tanggal = $request->query('tanggal') ?? Carbon::today()->toDateString();
+
+        $prediksiJam = PasangSurut::where('tanggal', $tanggal)
+            ->whereNotNull('tide_height_prediction')
+            ->orderBy('jam')
+            ->get();
+
+        if ($prediksiJam->isEmpty()) {
+            return response()->json(['data' => [], 'tanggal' => $tanggal]);
+        }
+
+        $wilayah = WilayahRob::orderBy('nama_wilayah')->get();
+
+        $result = $wilayah->map(function ($w) use ($prediksiJam) {
+            // Hitung tinggi rob prediksi tiap jam yang tersedia, sekaligus
+            // simpan tinggi air mentahnya (skala Chart Datum) per jam supaya
+            // bisa dipakai untuk kolom "Tinggi Air" di tabel prediksi.
+            $perJam = $prediksiJam->map(function ($p) use ($w) {
+                $tinggiAirMsl = $p->tide_height_prediction - self::MSL_VALUE;
+                $tinggiRob    = round($tinggiAirMsl - $w->tinggi_tanah, 2);
+                return [
+                    'jam'         => (int) $p->jam,
+                    'tinggi_air'  => $p->tide_height_prediction, // raw, skala Chart Datum
+                    'tinggi_rob'  => max($tinggiRob, 0),
+                    'tergenang'   => $tinggiRob > 0,
+                ];
+            })->values();
+
+            $puncak = $perJam->sortByDesc('tinggi_rob')->first();
+
+            $jamMulai = null;
+            $jamSelesai = null;
+
+            if ($puncak && $puncak['tergenang']) {
+                // Ekspansi dari jam puncak ke kiri & kanan selama masih tergenang,
+                // supaya rentang yang dilaporkan adalah SATU periode rob yang
+                // sama (bukan gabungan beberapa periode terpisah dalam sehari).
+                $byJam = $perJam->keyBy('jam');
+                $jamMulai = $jamSelesai = $puncak['jam'];
+
+                while ($byJam->has($jamMulai - 1) && $byJam[$jamMulai - 1]['tergenang']) {
+                    $jamMulai--;
+                }
+                while ($byJam->has($jamSelesai + 1) && $byJam[$jamSelesai + 1]['tergenang']) {
+                    $jamSelesai++;
+                }
+            }
+
+            // Tinggi air prediksi tertinggi sepanjang hari (bukan cuma saat
+            // rob puncak) — dipakai untuk kolom "Tinggi Air" tabel prediksi.
+            $tinggiAirTertinggi = $perJam->max('tinggi_air');
+
+            return [
+                'nama_wilayah'              => $w->nama_wilayah,
+                'tinggi_tanah'              => $w->tinggi_tanah,
+                'tinggi_air_prediksi_max'   => $tinggiAirTertinggi !== null ? round($tinggiAirTertinggi, 2) : null,
+                'tinggi_rob_max'            => $puncak['tinggi_rob'] ?? 0,
+                'tergenang'                 => $puncak['tergenang'] ?? false,
+                'jam_mulai'                 => $jamMulai,
+                'jam_selesai'               => $jamSelesai,
+            ];
+        });
+
+        return response()->json(['data' => $result, 'tanggal' => $tanggal]);
+    }
+
+    
 }

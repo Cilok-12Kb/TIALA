@@ -4,6 +4,8 @@
    mobile-first ala Tailwind (md:/lg:) + rule diringkas pakai
    @apply, plus dead CSS (komponen lama yang sudah diganti
    TideChart/AdminPetaMap) dibersihkan.
+   Update: alert banner "Siaga" (berbasis prediksi 24 jam) +
+   note keterangan prediksi di banner & stat card.
    ============================================================ */
 
 /* Tailwind v4: file ini bukan entry point, jadi @apply butuh
@@ -73,6 +75,7 @@
 
 .db-alert-banner--tinggi { @apply bg-[#FEF2F2] border-[#FECACA]; }
 .db-alert-banner--sedang { @apply bg-[#FFFBEB] border-[#FDE68A]; }
+.db-alert-banner--siaga  { @apply bg-[#FFFBEB] border-[#FDE68A]; }
 
 .db-alert-banner__icon {
   @apply flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center;
@@ -80,17 +83,23 @@
 
 .db-alert-banner--tinggi .db-alert-banner__icon { @apply bg-[#FEE2E2] text-[#DC2626]; }
 .db-alert-banner--sedang .db-alert-banner__icon { @apply bg-[#FEF3C7] text-[#D97706]; }
+.db-alert-banner--siaga  .db-alert-banner__icon { @apply bg-[#FEF3C7] text-[#D97706]; }
 
+/* Body sekarang 2 baris: teks utama + note prediksi (bukan lagi
+   satu baris baseline row seperti versi lama), supaya note bisa
+   turun ke bawah dengan rapi. */
 .db-alert-banner__body {
-  @apply flex-1 flex items-baseline gap-2.5 flex-wrap;
+  @apply flex-1 flex flex-col gap-1;
 }
 
 .db-alert-banner__tag {
-  @apply text-[10px] font-extrabold uppercase tracking-[1.2px] px-2 py-0.5 rounded whitespace-nowrap;
+  @apply inline-block w-fit text-[10px] font-extrabold uppercase
+         tracking-[1.2px] px-2 py-0.5 rounded whitespace-nowrap;
 }
 
 .db-alert-banner--tinggi .db-alert-banner__tag { @apply bg-[#FEE2E2] text-[#DC2626]; }
 .db-alert-banner--sedang .db-alert-banner__tag { @apply bg-[#FEF3C7] text-[#D97706]; }
+.db-alert-banner--siaga  .db-alert-banner__tag { @apply bg-[#FEF3C7] text-[#D97706]; }
 
 .db-alert-banner__text {
   @apply text-[13px] text-gray-700 leading-[1.4];
@@ -98,6 +107,10 @@
 
 .db-alert-banner__text strong {
   @apply font-semibold text-gray-900;
+}
+
+.db-alert-banner__note {
+  @apply text-[11px] text-gray-500 italic leading-snug;
 }
 
 .db-alert-banner__pulse {
@@ -109,7 +122,8 @@
   animation: db-ring-red 1.5s ease-out infinite;
 }
 
-.db-alert-banner--sedang .db-alert-banner__pulse {
+.db-alert-banner--sedang .db-alert-banner__pulse,
+.db-alert-banner--siaga  .db-alert-banner__pulse {
   @apply bg-[#F59E0B];
   animation: db-ring-amber 1.5s ease-out infinite;
 }
@@ -147,6 +161,10 @@
 
 .db-stat-card__label {
   @apply text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.5px] mb-1;
+}
+
+.db-stat-card__note {
+  @apply normal-case font-normal text-[#CBD5E1];
 }
 
 .db-stat-card__value {

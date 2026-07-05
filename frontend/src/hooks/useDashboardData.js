@@ -5,15 +5,16 @@ import useWeatherRataRata from "./useWeatherRataRata";
 import { toDateInputValue } from "../utils/tideHelpers";
 
 // Hook gabungan untuk semua data yang dibutuhkan halaman Dashboard:
-// cuaca Semarang, potensi rob (+geometry untuk peta), grafik pasang
-// surut 24 jam, dan rata-rata cuaca — sekaligus polling realtime setiap
-// 60 detik. Dipisah dari komponen Dashboard supaya komponennya cuma
-// fokus render JSX, mirip pola useWeather()/useWeatherRataRata() yang
-// sudah ada di project ini.
+// cuaca Semarang, potensi rob (+geometry untuk peta), prediksi rob 24 jam,
+// grafik pasang surut 24 jam, dan rata-rata cuaca — sekaligus polling
+// realtime setiap 60 detik. Dipisah dari komponen Dashboard supaya
+// komponennya cuma fokus render JSX, mirip pola useWeather()/
+// useWeatherRataRata() yang sudah ada di project ini.
 export default function useDashboardData() {
   const [selectedWeather, setSelectedWeather] = useState(null);
   const [weatherData, setWeatherData] = useState([]);
   const [robData, setRobData] = useState([]);
+  const [prediksiData, setPrediksiData] = useState([]);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [countdown, setCountdown] = useState(60);
 
@@ -59,8 +60,18 @@ export default function useDashboardData() {
       // endpoint ini sudah menyertakan field `geometry` yang dibutuhkan
       // AdminPetaMap. Endpoint lama /pasang-surut/rob-wilayah tidak
       // mengirim geometry sama sekali.
-      const response = await api.get("/peta/rob-data");
-      setRobData(response.data.data || []);
+      //
+      // Digabung dengan /peta/rob-prediksi (rob prediksi per wilayah,
+      // berdasarkan tide_height_prediction 24 jam) supaya popup peta di
+      // Dashboard bisa menampilkan bagian "Prediksi Rob" — sebelumnya
+      // AdminPetaMap dipanggil tanpa prediksiData sehingga bagian itu
+      // selalu kosong di halaman ini.
+      const [robRes, prediksiRes] = await Promise.all([
+        api.get("/peta/rob-data"),
+        api.get("/peta/rob-prediksi"),
+      ]);
+      setRobData(robRes.data.data || []);
+      setPrediksiData(prediksiRes.data.data || []);
     } catch (error) {
       console.error("Gagal mengambil data pasang surut:", error);
     }
@@ -108,6 +119,7 @@ export default function useDashboardData() {
     setSelectedWeather,
     weatherData,
     robData,
+    prediksiData,
     loadingWeather,
     countdown,
     rata,

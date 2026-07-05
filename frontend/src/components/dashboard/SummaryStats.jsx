@@ -6,11 +6,12 @@ import {
   ThermometerIcon,
 } from "./icons";
 
-export default function SummaryStats({ robData, weatherData }) {
+export default function SummaryStats({ robData, weatherData, prediksiData }) {
   const maxRob = robData.length
     ? Math.max(...robData.map((i) => i.tinggi_rob))
     : 0;
-  const highCount = robData.filter((i) => i.tinggi_rob >= 0.7).length;
+  // BARU — dihitung dari prediksi 24 jam, bukan data aktual jam ini
+  const siagaCount = prediksiData.filter((i) => i.tergenang).length;
   const avgTemp = weatherData.length
     ? (
         weatherData.reduce((s, i) => s + Number(i.t || 0), 0) /
@@ -27,8 +28,9 @@ export default function SummaryStats({ robData, weatherData }) {
       color: "blue",
     },
     {
-      label: "Siaga Tinggi",
-      value: highCount || "0",
+      label: "Siaga",
+      note: "Prediksi 24 jam",
+      value: siagaCount || "0",
       unit: "area",
       icon: <AlertTriangleIcon size={20} strokeWidth={2} />,
       color: "red",
@@ -57,7 +59,10 @@ export default function SummaryStats({ robData, weatherData }) {
             {s.icon}
           </div>
           <div className="db-stat-card__body">
-            <div className="db-stat-card__label">{s.label}</div>
+            <div className="db-stat-card__label">
+              {s.label}
+              {s.note && <span className="db-stat-card__note"> · {s.note}</span>}
+            </div>
             <div className="db-stat-card__value">
               {s.value}
               <span className="db-stat-card__unit">{s.unit}</span>
